@@ -1,13 +1,30 @@
 package br.com.mystore.desktop;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
-@SpringBootApplication
+import br.com.mystore.view.LoginView;
+
 public class MystoreDesktopApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MystoreDesktopApplication.class, args);
+		System.out.println("Iniciando a aplicação.");
+        try {
+            System.out.println("Início da configuração de visualização da interface.");
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+            System.out.println("Fim da configuração de visualização da interface.");
+            new LoginView().setVisible(true);
+            System.out.println("Aplicação iniciada com sucesso!.");
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+            System.out.println(String.format("Erro ao iniciar a aplicação: %s. Finalizando a aplicação.", e.getMessage()));
+            System.exit(0);
+        }
 	}
 
 }
