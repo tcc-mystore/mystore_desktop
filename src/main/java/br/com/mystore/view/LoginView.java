@@ -41,6 +41,8 @@ public class LoginView extends JFrame implements ActionListener {
 		this.getContentPane().add(logo(), BorderLayout.NORTH);
 		this.getContentPane().add(formulario(), BorderLayout.CENTER);
 		inicializarValores();
+		jbEntrar.addActionListener(this);
+        jbFechar.addActionListener(this);
 	}
 
 	private JPanel formulario() {
