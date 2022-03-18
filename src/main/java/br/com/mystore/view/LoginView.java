@@ -10,9 +10,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import br.com.mystore.api.controller.AuthorizationController;
+import br.com.mystore.api.exception.ApiException;
 
 public class LoginView extends JFrame implements ActionListener {
 
@@ -28,12 +33,12 @@ public class LoginView extends JFrame implements ActionListener {
 	private JLabel jlLogo;
 	private JPanel jpFormulario;
 	private JPanel jpLogo;
+	private JPasswordField jpfSenha;
 	private JTextField jtfUsuario;
-	private JTextField jtfSenha;
 
 	public LoginView() {
 		this.setTitle("Login - MyStore");
-		this.setSize(250, 350);
+		this.setSize(300, 350);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -42,7 +47,7 @@ public class LoginView extends JFrame implements ActionListener {
 		this.getContentPane().add(formulario(), BorderLayout.CENTER);
 		inicializarValores();
 		jbEntrar.addActionListener(this);
-        jbFechar.addActionListener(this);
+		jbFechar.addActionListener(this);
 	}
 
 	private JPanel formulario() {
@@ -51,7 +56,7 @@ public class LoginView extends JFrame implements ActionListener {
 		jtfUsuario = new JTextField();
 		jlSenha = new JLabel("Senha: ");
 		jlSenha.setHorizontalAlignment(SwingConstants.RIGHT);
-		jtfSenha = new JTextField();
+		jpfSenha = new JPasswordField();
 
 		jbFechar = new JButton("Fechar");
 		jbEntrar = new JButton("Entrar");
@@ -61,7 +66,7 @@ public class LoginView extends JFrame implements ActionListener {
 		jpFormulario.add(jlUsuario);
 		jpFormulario.add(jtfUsuario);
 		jpFormulario.add(jlSenha);
-		jpFormulario.add(jtfSenha);
+		jpFormulario.add(jpfSenha);
 		jpFormulario.add(jbFechar);
 		jpFormulario.add(jbEntrar);
 		jpFormulario.setLayout(new GridLayout(3, 2));
@@ -81,14 +86,27 @@ public class LoginView extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		try {
-			if (e.getSource() == jbFechar) {
+		if (e.getSource() == jbFechar) {
+			try {
 				fecharAplicacao();
-			} else if (e.getSource() == jbEntrar) {
-				// Lógoca de login
+			} catch (Exception ex) {
+				System.out.println(String.format("Erro ao capturar o evento acionado. Erro: %s.", ex.getMessage()));
 			}
-		} catch (Exception ex) {
-			System.out.println(String.format("Erro ao capturar o evento acionado. Erro: %s.", ex.getMessage()));
+		} else if (e.getSource() == jbEntrar) {
+			try {
+				JOptionPane.showMessageDialog(null, jtfUsuario.getText());
+				AuthorizationController authorizationController = new AuthorizationController();
+				var teste = authorizationController.tokenUsuario(jtfUsuario.getText(),
+						jpfSenha.getPassword().toString());
+				System.out.print(teste);
+			} catch (ApiException ex) {
+				if (ex.getProblema() != null)
+					JOptionPane.showMessageDialog(null, ex.getProblema().getError(), "Atenção",
+							JOptionPane.WARNING_MESSAGE);
+				else
+					System.out.println(String.format("Erro ao capturar o evento acionado. Erro: %s.",
+							ex.getProblema().getUserMessage()));
+			}
 		}
 	}
 
@@ -99,7 +117,10 @@ public class LoginView extends JFrame implements ActionListener {
 	}
 
 	private void inicializarValores() {
-		jtfUsuario.setText("");
-		jtfSenha.setText("");
+		//jtfUsuario.setText("");
+		//jpfSenha.setText("");
+
+		jtfUsuario.setText("geversonjosedesouza@hotmail.com");
+		jpfSenha.setText("123456");
 	}
 }
