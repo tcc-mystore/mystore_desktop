@@ -1,17 +1,18 @@
 package br.com.mystore.api.controller;
 
-import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.AplicacaoAutenticadaModel;
@@ -19,56 +20,79 @@ import br.com.mystore.api.model.UsuarioAutenticadoModel;
 import br.com.mystore.core.AccessConfig;
 
 public class AuthorizationController {
+	
 	private static final String RESOURCE_PATH = "/oauth/token";
 
 	private RestTemplate restTemplate;
 
 	public static String TOKEN = null;
+	
+	public AuthorizationController() {
+		this.restTemplate = new RestTemplate();;
+	}
 
 	private HttpHeaders createHeaders(String user, String password) {
+		
 		String plainCreds = String.format("%s:%s", user, password);
-		byte[] plainCredsBytes = plainCreds.getBytes();
+		
+		byte[] plainCredsBytes = plainCreds.getBytes(StandardCharsets.UTF_8);
+		
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		
 		String base64Creds = new String(base64CredsBytes);
 
 		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.add("Authorization", "Basic " + base64Creds);
+		
 		return headers;
 	}
 
-	public ResponseEntity<AplicacaoAutenticadaModel> tokenAplicacao() {
+	public AplicacaoAutenticadaModel tokenAplicacao() {
+		
 		try {
-			restTemplate = new RestTemplate();
-			URI resourceUri = URI.create(AccessConfig.URL.getValor() + RESOURCE_PATH);
-			MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
+			var resourceUri = builder.buildAndExpand().toUri();
+			
+			var body = new LinkedMultiValueMap<String, String>();
 			body.add("grant_type", "client_credentials");
-			HttpEntity<?> httpEntity = new HttpEntity<Object>(body,
-					createHeaders(AccessConfig.USER_MANAGER.getValor(), AccessConfig.PASSWORD_MANAGER.getValor()));
-			ResponseEntity<AplicacaoAutenticadaModel> aplicacaoAutenticadaModel = restTemplate.exchange(resourceUri,
-					HttpMethod.POST, httpEntity, AplicacaoAutenticadaModel.class);
-
-			return aplicacaoAutenticadaModel;
+			
+			var headers = createHeaders(AccessConfig.USER_MANAGER.getValor(), AccessConfig.PASSWORD_MANAGER.getValor());
+		
+			var httpEntity = new HttpEntity<Object>(body, headers);
+			
+			return restTemplate.postForObject(resourceUri, httpEntity, AplicacaoAutenticadaModel.class);
+			
 		} catch (RestClientResponseException e) {
 			throw new ApiException(e.getMessage(), e);
 		}
 	}
 
-	public ResponseEntity<UsuarioAutenticadoModel> tokenUsuario(String username, String password) {
+	public UsuarioAutenticadoModel tokenUsuario(String username, String password) {
+
 		try {
-			restTemplate = new RestTemplate();
-			URI resourceUri = URI.create(AccessConfig.URL.getValor() + RESOURCE_PATH);
-			MultiValueMap<String, String> body = new LinkedMultiValueMap<String, String>();
-			body.add("username", username);
-			body.add("password", password);
-			body.add("grant_type", "password");
-			HttpEntity<?> httpEntity = new HttpEntity<Object>(body,
-					createHeaders(AccessConfig.USER.getValor(), AccessConfig.PASSWORD.getValor()));
-			ResponseEntity<UsuarioAutenticadoModel> usuarioAutenticadoModel = restTemplate.exchange(resourceUri,
-					HttpMethod.POST, httpEntity, UsuarioAutenticadoModel.class);
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
+			var resourceUri = builder.buildAndExpand().toUri();
 
-			return usuarioAutenticadoModel;
+			var params = new LinkedMultiValueMap<String, String>();
+			params.add("username", username);
+			params.add("password", password);
+			params.add("grant_type", "password");
+			
+			var headers = createHeaders(AccessConfig.USER.getValor(), AccessConfig.PASSWORD.getValor());
+
+			var httpEntity = new HttpEntity<Object>(params, headers);
+			
+			return restTemplate.postForObject(resourceUri, httpEntity, UsuarioAutenticadoModel.class);
+
+		} catch (BadRequest e) {
+			throw new ApiException(400);
+		} catch (Unauthorized e) {
+			throw new ApiException(401);
 		} catch (RestClientResponseException e) {
 			throw new ApiException(e.getMessage(), e);
 		}
 	}
+
 }

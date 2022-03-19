@@ -7,7 +7,6 @@ public class Problema {
 	private Integer status;
 	private OffsetDateTime timestamp;
 	private String userMessage;
-	
 	private String error;
 
 	public String getError() {

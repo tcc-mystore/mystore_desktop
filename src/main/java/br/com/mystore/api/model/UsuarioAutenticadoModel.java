@@ -1,26 +1,28 @@
 package br.com.mystore.api.model;
 
+import java.util.Arrays;
+
 public class UsuarioAutenticadoModel extends AplicacaoAutenticadaModel {
 
-	private String refreshToken;
-	private Long usuarioId;
+	private String refresh_token;
+	private Long usuario_id;
 	private String[] empresas;
-	private String nomeCompleto;
+	private String nome_completo;
 
 	public String getRefreshToken() {
-		return refreshToken;
+		return refresh_token;
 	}
 
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
+	public void setRefreshToken(String refresh_token) {
+		this.refresh_token = refresh_token;
 	}
 
 	public Long getUsuarioId() {
-		return usuarioId;
+		return usuario_id;
 	}
 
-	public void setUsuarioId(Long usuarioId) {
-		this.usuarioId = usuarioId;
+	public void setUsuarioId(Long usuario_id) {
+		this.usuario_id = usuario_id;
 	}
 
 	public String[] getEmpresas() {
@@ -32,11 +34,21 @@ public class UsuarioAutenticadoModel extends AplicacaoAutenticadaModel {
 	}
 
 	public String getNomeCompleto() {
-		return nomeCompleto;
+		return nome_completo;
 	}
 
-	public void setNomeCompleto(String nomeCompleto) {
-		this.nomeCompleto = nomeCompleto;
+	public void setNomeCompleto(String nome_completo) {
+		this.nome_completo = nome_completo;
 	}
 
+	@Override
+	public String toString() {
+		return "UsuarioAutenticadoModel [refresh_token=" + refresh_token + ", usuario_id=" + usuario_id + ", empresas="
+				+ Arrays.toString(empresas) + ", nome_completo=" + nome_completo + ", getAccessToken()="
+				+ getAccessToken() + ", getTokenType()=" + getTokenType() + ", getExpiresIn()=" + getExpiresIn()
+				+ ", getScope()=" + getScope() + ", getJti()=" + getJti() + "]";
+	}
+
+	
+	
 }

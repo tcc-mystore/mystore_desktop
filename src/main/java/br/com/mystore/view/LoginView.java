@@ -35,6 +35,7 @@ public class LoginView extends JFrame implements ActionListener {
 	private JPanel jpLogo;
 	private JPasswordField jpfSenha;
 	private JTextField jtfUsuario;
+	private AuthorizationController authorizationController;
 
 	public LoginView() {
 		this.setTitle("Login - MyStore");
@@ -94,18 +95,10 @@ public class LoginView extends JFrame implements ActionListener {
 			}
 		} else if (e.getSource() == jbEntrar) {
 			try {
-				JOptionPane.showMessageDialog(null, jtfUsuario.getText());
-				AuthorizationController authorizationController = new AuthorizationController();
-				var teste = authorizationController.tokenUsuario(jtfUsuario.getText(),
-						jpfSenha.getPassword().toString());
-				System.out.print(teste);
+				var usuarioAutenticado = authorizationController.tokenUsuario(jtfUsuario.getText(), String.valueOf(jpfSenha.getPassword()));
+				System.out.print(usuarioAutenticado.toString());
 			} catch (ApiException ex) {
-				if (ex.getProblema() != null)
-					JOptionPane.showMessageDialog(null, ex.getProblema().getError(), "Atenção",
-							JOptionPane.WARNING_MESSAGE);
-				else
-					System.out.println(String.format("Erro ao capturar o evento acionado. Erro: %s.",
-							ex.getProblema().getUserMessage()));
+				JOptionPane.showMessageDialog(null, ex.getProblema().getUserMessage(), ex.getProblema().getError(), JOptionPane.WARNING_MESSAGE);
 			}
 		}
 	}
@@ -117,10 +110,14 @@ public class LoginView extends JFrame implements ActionListener {
 	}
 
 	private void inicializarValores() {
-		//jtfUsuario.setText("");
-		//jpfSenha.setText("");
+		// jtfUsuario.setText("");
+		// jpfSenha.setText("");
 
 		jtfUsuario.setText("geversonjosedesouza@hotmail.com");
 		jpfSenha.setText("123456");
+
+		authorizationController = new AuthorizationController();
+		var appAutenticado = authorizationController.tokenAplicacao();
+		System.out.println(String.format("Autenticando o app. Token: %s", appAutenticado.toString()));
 	}
 }

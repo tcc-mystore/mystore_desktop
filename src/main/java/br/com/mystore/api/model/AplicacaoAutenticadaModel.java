@@ -2,34 +2,34 @@ package br.com.mystore.api.model;
 
 public class AplicacaoAutenticadaModel {
 
-	private String accessToken;
-	private String tokenType;
-	private Long expiresIn;
+	private String access_token;
+	private String token_type;
+	private Long expires_in;
 	private String scope;
 	private String jti;
 
 	public String getAccessToken() {
-		return accessToken;
+		return access_token;
 	}
 
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
+	public void setAccessToken(String access_token) {
+		this.access_token = access_token;
 	}
 
 	public String getTokenType() {
-		return tokenType;
+		return token_type;
 	}
 
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
+	public void setTokenType(String token_type) {
+		this.token_type = token_type;
 	}
 
 	public Long getExpiresIn() {
-		return expiresIn;
+		return expires_in;
 	}
 
-	public void setExpiresIn(Long expiresIn) {
-		this.expiresIn = expiresIn;
+	public void setExpiresIn(Long expires_in) {
+		this.expires_in = expires_in;
 	}
 
 	public String getScope() {
@@ -48,4 +48,12 @@ public class AplicacaoAutenticadaModel {
 		this.jti = jti;
 	}
 
+	@Override
+	public String toString() {
+		return "AplicacaoAutenticadaModel [access_token=" + access_token + ", token_type=" + token_type + ", expires_in="
+				+ expires_in + ", scope=" + scope + ", jti=" + jti + "]";
+	}
+
+	
+	
 }

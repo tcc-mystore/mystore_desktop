@@ -1,5 +1,7 @@
 package br.com.mystore.api.exception;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +25,30 @@ public class ApiException extends RuntimeException {
 		super(message, cause);
 		
 		deserializeProblema(cause);
+	}
+	
+	public ApiException(RestClientResponseException cause) {
+		super(cause);
+		log.warn("Erro encontrado: ", cause.getMessage());
+	}
+	
+	public ApiException(Integer status) {
+		problema = new Problema();
+		problema.setStatus(status);
+		switch (status) {
+		case 400:
+			problema.setUserMessage("Requisicao mal formada!");
+			problema.setTimestamp(OffsetDateTime.now());
+			break;
+		case 401:
+			problema.setUserMessage("Usuário ou Senha Inválido!");
+			problema.setTimestamp(OffsetDateTime.now());
+			break;
+		default:
+			problema.setUserMessage("Erro desconhecido!");
+			problema.setTimestamp(OffsetDateTime.now());
+			break;
+		}
 	}
 	
 	private void deserializeProblema(RestClientResponseException cause) {
