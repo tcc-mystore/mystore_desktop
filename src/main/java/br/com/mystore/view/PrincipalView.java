@@ -41,7 +41,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 		this.usuario = usuario;
 		this.setTitle("Área de Trabalho - My Store");
 		this.setSize(800, 700);
-		// this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		this.setJMenuBar(barraMenu());
@@ -49,7 +49,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(centro(), BorderLayout.CENTER);
 		this.getContentPane().add(rodape(usuario), BorderLayout.SOUTH);
-		// this.pack();
+		this.pack();
 	}
 
 	private JMenuBar barraMenu() {
@@ -129,7 +129,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		try {
 			if (e.getSource() == jmiCadastroEmpresa) {
-				addFrame(new EmpresaView().adicionar(usuario.getAccess_token()));
+				addFrame(new EmpresaView(usuario.getAccess_token()).adicionar());
 			} else if (e.getSource() == jmiSair) {
 				fecharAplicacao();
 			} else if (e.getSource() == jmiSobre) {
