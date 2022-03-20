@@ -1,8 +1,6 @@
 package br.com.mystore.api.controller;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,19 +12,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
-import br.com.mystore.api.model.CidadeBacicoModel;
-import br.com.mystore.api.model.ResponseCidadeBacicoModel;
+import br.com.mystore.api.model.EmpresaBasicoModel;
+import br.com.mystore.api.model.input.EmpresaInput;
 import br.com.mystore.core.AccessConfig;
 
-public class CidadeController {
+public class EmpresaController {
 
-	private static final String RESOURCE_PATH = "/v1/cidades";
+	private static final String RESOURCE_PATH = "/v1/empresas";
 
 	private RestTemplate restTemplate;
 
-	public static String TOKEN = null;
-
-	public CidadeController() {
+	public EmpresaController() {
 		this.restTemplate = new RestTemplate();
 	}
 
@@ -40,7 +36,7 @@ public class CidadeController {
 		return headers;
 	}
 
-	public List<CidadeBacicoModel> todasCidades(String token) {
+	public EmpresaBasicoModel cadastrar(String token, EmpresaInput empresaInput) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
@@ -48,13 +44,12 @@ public class CidadeController {
 
 			var headers = createHeaders(token);
 
-			var httpEntity = new HttpEntity<Object>(headers);
+			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
-			var responseCidadeBacicoModel = restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, ResponseCidadeBacicoModel.class).getBody();
+			var responseEmpresaBasicoModel = restTemplate
+					.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaBasicoModel.class).getBody();
 
-			var cidadeBacicoModels = Arrays.asList(responseCidadeBacicoModel.get_embedded().getCidades());
-
-			return cidadeBacicoModels;
+			return responseEmpresaBasicoModel;
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
