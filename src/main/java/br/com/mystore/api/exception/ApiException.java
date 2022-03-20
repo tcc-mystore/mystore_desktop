@@ -1,7 +1,9 @@
 package br.com.mystore.api.exception;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 
+import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,48 +22,59 @@ public class ApiException extends RuntimeException {
 
 	@Getter
 	private Problema problema;
-	
+
 	public ApiException(String message, RestClientResponseException cause) {
 		super(message, cause);
-		
+
 		deserializeProblema(cause);
 	}
-	
+
 	public ApiException(RestClientResponseException cause) {
 		super(cause);
 		log.warn("Erro encontrado: ", cause.getMessage());
 	}
-	
-	public ApiException(Integer status) {
+
+	public ApiException(Integer status, RestClientResponseException cause) {
 		problema = new Problema();
 		problema.setStatus(status);
+		problema.setError("Atenção");
+
+		JacksonJsonParser jsonParser = new JacksonJsonParser();
+		Map<String, Object> erroRetornado = null;
+		if (cause != null) {
+			erroRetornado = jsonParser.parseMap(cause.getResponseBodyAsString());
+
+			if (erroRetornado.get("error_description") != null)
+				problema.setUserMessage("Usuário ou Senha Inválido!");
+		}
+
 		switch (status) {
 		case 400:
-			problema.setUserMessage("Requisicao mal formada!");
 			problema.setTimestamp(OffsetDateTime.now());
 			break;
 		case 401:
-			problema.setUserMessage("Usuário ou Senha Inválido!");
+			problema.setUserMessage("Acesso Não Authorizado!");
 			problema.setTimestamp(OffsetDateTime.now());
 			break;
 		default:
-			problema.setUserMessage("Erro desconhecido!");
+			problema.setError("Erro");
+			problema.setUserMessage("Erro desconhecido, contate o administrador do sistema!");
 			problema.setTimestamp(OffsetDateTime.now());
 			break;
 		}
 	}
-	
+
 	private void deserializeProblema(RestClientResponseException cause) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.registerModule(new JavaTimeModule());
 		mapper.findAndRegisterModules();
-		
+
 		try {
 			this.problema = mapper.readValue(cause.getResponseBodyAsString(), Problema.class);
 		} catch (JsonProcessingException e) {
 			log.warn("Não foi possível desserializar a resposta em um problema", e);
 		}
 	}
-	
+
 }

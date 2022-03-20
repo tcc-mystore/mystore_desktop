@@ -21,9 +21,6 @@ import br.com.mystore.api.exception.ApiException;
 
 public class LoginView extends JFrame implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ImageIcon iiLogo;
 	private JButton jbEntrar;
@@ -95,10 +92,17 @@ public class LoginView extends JFrame implements ActionListener {
 			}
 		} else if (e.getSource() == jbEntrar) {
 			try {
-				var usuarioAutenticado = authorizationController.tokenUsuario(jtfUsuario.getText(), String.valueOf(jpfSenha.getPassword()));
+				var usuarioAutenticado = authorizationController.tokenUsuario(jtfUsuario.getText(),
+						String.valueOf(jpfSenha.getPassword()));
 				System.out.print(usuarioAutenticado.toString());
+				new PrincipalView(usuarioAutenticado).setVisible(true);
+				this.dispose();
 			} catch (ApiException ex) {
-				JOptionPane.showMessageDialog(null, ex.getProblema().getUserMessage(), ex.getProblema().getError(), JOptionPane.WARNING_MESSAGE);
+				int tipoMensagem = JOptionPane.WARNING_MESSAGE;
+				if (ex.getProblema().getStatus() == 500)
+					tipoMensagem = JOptionPane.ERROR_MESSAGE;
+				JOptionPane.showMessageDialog(null, ex.getProblema().getUserMessage(), ex.getProblema().getError(),
+						tipoMensagem);
 			}
 		}
 	}
@@ -117,7 +121,12 @@ public class LoginView extends JFrame implements ActionListener {
 		jpfSenha.setText("123456");
 
 		authorizationController = new AuthorizationController();
-		var appAutenticado = authorizationController.tokenAplicacao();
-		System.out.println(String.format("Autenticando o app. Token: %s", appAutenticado.toString()));
+		try {
+			var appAutenticado = authorizationController.tokenAplicacao();
+			System.out.print(appAutenticado.toString());
+		} catch (ApiException e) {
+			JOptionPane.showMessageDialog(null, "Falha na inicialização: " + e.getProblema().getUserMessage(), "Erro",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }
