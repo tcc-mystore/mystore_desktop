@@ -36,7 +36,7 @@ public class LoginView extends JFrame implements ActionListener {
 
 	public LoginView() {
 		this.setTitle("Login - MyStore");
-		this.setSize(300, 350);
+		this.setSize(350, 400);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -49,24 +49,26 @@ public class LoginView extends JFrame implements ActionListener {
 	}
 
 	private JPanel formulario() {
+		jpFormulario = new JPanel();
+
 		jlUsuario = new JLabel("Usuário: ");
+		jpFormulario.add(jlUsuario);
 		jlUsuario.setHorizontalAlignment(SwingConstants.RIGHT);
 		jtfUsuario = new JTextField();
+		jpFormulario.add(jtfUsuario);
+
 		jlSenha = new JLabel("Senha: ");
+		jpFormulario.add(jlSenha);
 		jlSenha.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpfSenha = new JPasswordField();
+		jpFormulario.add(jpfSenha);
 
 		jbFechar = new JButton("Fechar");
-		jbEntrar = new JButton("Entrar");
-
-		jpFormulario = new JPanel();
-		jpFormulario.setBorder(BorderFactory.createTitledBorder("Dados de Acesso"));
-		jpFormulario.add(jlUsuario);
-		jpFormulario.add(jtfUsuario);
-		jpFormulario.add(jlSenha);
-		jpFormulario.add(jpfSenha);
 		jpFormulario.add(jbFechar);
+		jbEntrar = new JButton("Entrar");
 		jpFormulario.add(jbEntrar);
+
+		jpFormulario.setBorder(BorderFactory.createTitledBorder("Dados de Acesso"));
 		jpFormulario.setLayout(new GridLayout(3, 2));
 
 		return jpFormulario;

@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -19,6 +20,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
 import br.com.mystore.api.model.UsuarioAutenticadoModel;
@@ -33,9 +35,11 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JTextField jtfUsuario;
 	private JMenuBar jmbBarra;
 	private JMenu jmCadastro;
-	private JMenuItem jmiCadastroEmpresa, jmiSobre, jmiSair;
+	private JMenuItem jmiCadastroEmpresa;
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
+	private JToolBar jtbFerramentas;
+	private JButton jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
@@ -49,24 +53,33 @@ public class PrincipalView extends JFrame implements ActionListener {
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(centro(), BorderLayout.CENTER);
 		this.getContentPane().add(rodape(usuario), BorderLayout.SOUTH);
-		this.pack();
+	}
+
+	private JToolBar ferramentas() {
+		jtbFerramentas = new JToolBar("Ferramentas", JToolBar.HORIZONTAL);
+
+		jbSobre = new JButton();
+		jbSobre.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/sobre.png")));
+		jbSobre.setToolTipText("Sobre");
+		jbSobre.setFocusable(false);
+		jbSobre.addActionListener(this);
+		jtbFerramentas.add(jbSobre);
+
+		jbSair = new JButton();
+		jbSair.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/sair.png")));
+		jbSair.setToolTipText("Sair");
+		jbSair.setFocusable(false);
+		jbSair.addActionListener(this);
+		jtbFerramentas.add(jbSair);
+
+		return jtbFerramentas;
 	}
 
 	private JMenuBar barraMenu() {
 		jmbBarra = new JMenuBar();
 		jmbBarra.add(menuCadastro());
 
-		// Saindo..
-		jmiSair = new JMenuItem("Sair");
-		jmiSair.setMnemonic('S');
-		jmiSair.addActionListener(this);
-		jmbBarra.add(jmiSair);
-
-		// Sobre..
-		jmiSobre = new JMenuItem("Sobre");
-		jmiSobre.setMnemonic('S');
-		jmiSobre.addActionListener(this);
-		jmbBarra.add(jmiSobre);
+		jmbBarra.add(ferramentas());
 		return jmbBarra;
 	}
 
@@ -130,9 +143,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 		try {
 			if (e.getSource() == jmiCadastroEmpresa) {
 				addFrame(new EmpresaView(usuario.getAccess_token()).adicionar());
-			} else if (e.getSource() == jmiSair) {
+			} else if (e.getSource() == jbSair) {
 				fecharAplicacao();
-			} else if (e.getSource() == jmiSobre) {
+			} else if (e.getSource() == jbSobre) {
 				new SobreView();
 			} else {
 				JOptionPane.showMessageDialog(null, "Ação não implementada", "Operação impossível",
