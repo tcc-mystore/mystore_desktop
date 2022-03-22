@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.EstadoBasicoModel;
-import br.com.mystore.api.model.ResponseEstadoBacicoModel;
+import br.com.mystore.api.model.response.EstadoModelResponse;
 import br.com.mystore.core.AccessConfig;
 
 public class EstadoController {
@@ -51,7 +51,7 @@ public class EstadoController {
 			var httpEntity = new HttpEntity<Object>(headers);
 
 			var responseCidadeBacicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.GET, httpEntity, ResponseEstadoBacicoModel.class).getBody();
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, EstadoModelResponse.class).getBody();
 
 			var estadoBacicoModels = Arrays.asList(responseCidadeBacicoModel.get_embedded().getEstados());
 			return estadoBacicoModels;

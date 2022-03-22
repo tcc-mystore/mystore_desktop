@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.CidadeBacicoModel;
-import br.com.mystore.api.model.ResponseCidadeBacicoModel;
+import br.com.mystore.api.model.response.CidadeModelResponse;
 import br.com.mystore.core.AccessConfig;
 
 public class CidadeController {
@@ -50,7 +50,7 @@ public class CidadeController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			var responseCidadeBacicoModel = restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, ResponseCidadeBacicoModel.class).getBody();
+			var responseCidadeBacicoModel = restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, CidadeModelResponse.class).getBody();
 
 			var cidadeBacicoModels = Arrays.asList(responseCidadeBacicoModel.get_embedded().getCidades());
 

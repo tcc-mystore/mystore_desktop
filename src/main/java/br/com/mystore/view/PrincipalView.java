@@ -34,8 +34,8 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JPanel jpRodape;
 	private JTextField jtfUsuario;
 	private JMenuBar jmbBarra;
-	private JMenu jmCadastro;
-	private JMenuItem jmiCadastroEmpresa;
+	private JMenu jmCadastro, jmConsultas;
+	private JMenuItem jmiCadastroEmpresa, jmiConsultasEmpresa;
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
@@ -77,7 +77,10 @@ public class PrincipalView extends JFrame implements ActionListener {
 
 	private JMenuBar barraMenu() {
 		jmbBarra = new JMenuBar();
+
 		jmbBarra.add(menuCadastro());
+
+		jmbBarra.add(menuConsultas());
 
 		jmbBarra.add(ferramentas());
 		return jmbBarra;
@@ -94,6 +97,19 @@ public class PrincipalView extends JFrame implements ActionListener {
 		jmCadastro.add(jmiCadastroEmpresa);
 
 		return jmCadastro;
+	}
+
+	private JMenu menuConsultas() {
+		jmConsultas = new JMenu("Consultas");
+		jmConsultas.setMnemonic('s');
+		jmbBarra.add(jmCadastro);
+
+		jmiConsultasEmpresa = new JMenuItem("Consultas de Empresas");
+		jmiConsultasEmpresa.setMnemonic('E');
+		jmiConsultasEmpresa.addActionListener(this);
+		jmConsultas.add(jmiConsultasEmpresa);
+
+		return jmConsultas;
 	}
 
 	private JPanel rodape(UsuarioAutenticadoModel usuario) {
@@ -143,6 +159,8 @@ public class PrincipalView extends JFrame implements ActionListener {
 		try {
 			if (e.getSource() == jmiCadastroEmpresa) {
 				addFrame(new EmpresaView(usuario.getAccess_token()).adicionar());
+			} else if (e.getSource() == jmiConsultasEmpresa) {
+				addFrame(new EmpresaView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbSair) {
 				fecharAplicacao();
 			} else if (e.getSource() == jbSobre) {

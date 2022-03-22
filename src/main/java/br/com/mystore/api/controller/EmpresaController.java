@@ -1,6 +1,8 @@
 package br.com.mystore.api.controller;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.EmpresaBasicoModel;
 import br.com.mystore.api.model.input.EmpresaInput;
+import br.com.mystore.api.model.response.EmpresaModelResponse;
 import br.com.mystore.core.AccessConfig;
 
 public class EmpresaController {
@@ -24,16 +27,6 @@ public class EmpresaController {
 
 	public EmpresaController() {
 		this.restTemplate = new RestTemplate();
-	}
-
-	private HttpHeaders createHeaders(String token) {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("Authorization", "Bearer " + token);
-
-		return headers;
 	}
 
 	public EmpresaBasicoModel cadastrar(String token, EmpresaInput empresaInput) {
@@ -58,4 +51,36 @@ public class EmpresaController {
 		}
 	}
 
+	private HttpHeaders createHeaders(String token) {
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add("Authorization", "Bearer " + token);
+
+		return headers;
+	}
+
+	public List<EmpresaBasicoModel> todasEmpresas(String token) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var responseEmpresaBacicoModel = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModelResponse.class).getBody();
+
+			var empresaBacicoModels = Arrays.asList(responseEmpresaBacicoModel.get_embedded().getEmpresas());
+			return empresaBacicoModels;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
 }
