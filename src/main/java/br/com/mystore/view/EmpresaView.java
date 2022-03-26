@@ -48,12 +48,10 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private JFormattedTextField jftfCpfCnpj;
 	private JComboBox<CidadeBacicoModel> jcbCidades;
 	private JComboBox<EstadoBasicoModel> jcbEstados;
-	private JButton jbEditar, jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbReport,
-			jbAdicionar;
-	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj;
+	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar;
+	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj, jpFormulario;
 	private JTable jtEmpresas, jtEmpresasBuscar;
 	private JScrollPane jsp;
-	private JButton jbImprimir;
 	private ButtonGroup buttonGroup;
 	private JRadioButton rbCpf, rbCnpj;
 	private MaskFormatter maskFormatter;
@@ -61,41 +59,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private CidadeController cidadeController;
 	private EstadoController estadoController;
 	private EmpresaController empresaController;
-	private JPanel jpFormulario;
-	private JDialog jdEditar, jdAdicionar;
+	private JDialog jdDadosDaEmpresa;
 	private Window owner;
-	private String idTemporario;
 
 	public EmpresaView(String token) {
 		this.owner = SwingUtilities.getWindowAncestor(this);
 		this.token = token;
 		this.cidadeController = new CidadeController();
 		this.estadoController = new EstadoController();
-	}
-
-	public void adicionar() throws ParseException {
-		this.jdAdicionar = new JDialog((Frame) this.owner);
-
-		componentesComuns();
-
-		this.jbSalvar = new JButton("Salvar");
-		this.jpFormulario.add(jbSalvar);
-		this.jbSalvar.addActionListener(this);
-
-		this.jbCancelar = new JButton("Cancelar");
-		this.jpFormulario.add(jbCancelar);
-		this.jbCancelar.addActionListener(this);
-
-		this.jpFormulario.setLayout(new GridLayout(12, 2));
-
-		this.jdAdicionar.getContentPane().setLayout(new BorderLayout());
-		this.jdAdicionar.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
-
-		this.jdAdicionar.setTitle("Cadastrar Empresa");
-		this.jdAdicionar.setSize(300, 330);
-		this.jdAdicionar.setModal(true);
-		this.jdAdicionar.setLocationRelativeTo(null);
-		this.jdAdicionar.setVisible(true);
 	}
 
 	private void componentesComuns() throws ParseException {
@@ -195,31 +166,35 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 	}
 
-	public void editar() throws ParseException {
-		if (idTemporario == null)
-			new Exception("Falha ao captuar a empresa selecionada!");
+	public void dadosDaEmpresa(String id) throws ParseException {
 
-		this.jdEditar = new JDialog((Frame) this.owner);
+		this.jdDadosDaEmpresa = new JDialog((Frame) this.owner);
 
 		componentesComuns();
 
-		var empresa = empresaController.empresaPorId(token, idTemporario);
+		if (id == null) {
+			this.jbSalvar = new JButton("Salvar");
+			this.jpFormulario.add(jbSalvar);
+			this.jbSalvar.addActionListener(this);
+		} else {
+			var empresa = empresaController.empresaPorId(token, id);
 
-		jtfId.setText(String.valueOf(empresa.getId()));
-		jtfNome.setText(empresa.getNome());
-		jftfCpfCnpj.setText(empresa.getCpfCnpj());
-		// jtfTelefone.setText(empresa.getTelefone());
-		// jtfEnderecoId.setText(String.valueOf(empresa.getEndereco().getId()));
-		jtfLogradouro.setText(empresa.getEndereco().getLogradouro());
-		jtfNumero.setText(empresa.getEndereco().getNumero());
-		jtfComplemento.setText(empresa.getEndereco().getComplemento());
-		jtfBairro.setText(empresa.getEndereco().getBairro());
-		jtfCep.setText(empresa.getEndereco().getCep());
-		jcbCidades.setSelectedItem(empresa.getEndereco().getCidade());
+			jtfId.setText(String.valueOf(empresa.getId()));
+			jtfNome.setText(empresa.getNome());
+			jftfCpfCnpj.setText(empresa.getCpfCnpj());
+			// jtfTelefone.setText(empresa.getTelefone());
+			// jtfEnderecoId.setText(String.valueOf(empresa.getEndereco().getId()));
+			jtfLogradouro.setText(empresa.getEndereco().getLogradouro());
+			jtfNumero.setText(empresa.getEndereco().getNumero());
+			jtfComplemento.setText(empresa.getEndereco().getComplemento());
+			jtfBairro.setText(empresa.getEndereco().getBairro());
+			jtfCep.setText(empresa.getEndereco().getCep());
+			jcbCidades.setSelectedItem(empresa.getEndereco().getCidade());
 
-		this.jbAlterar = new JButton("Alterar");
-		this.jpFormulario.add(jbAlterar);
-		this.jbAlterar.addActionListener(this);
+			this.jbAlterar = new JButton("Alterar");
+			this.jpFormulario.add(jbAlterar);
+			this.jbAlterar.addActionListener(this);
+		}
 
 		this.jbCancelar = new JButton("Cancelar");
 		this.jpFormulario.add(jbCancelar);
@@ -227,14 +202,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 		this.jpFormulario.setLayout(new GridLayout(12, 2));
 
-		this.jdEditar.getContentPane().setLayout(new BorderLayout());
-		this.jdEditar.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
+		this.jdDadosDaEmpresa.getContentPane().setLayout(new BorderLayout());
+		this.jdDadosDaEmpresa.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
 
-		this.jdEditar.setTitle("Alterar Empresa");
-		this.jdEditar.setSize(300, 330);
-		this.jdEditar.setModal(true);
-		this.jdEditar.setLocationRelativeTo(null);
-		this.jdEditar.setVisible(true);
+		this.jdDadosDaEmpresa.setTitle("Alterar Empresa");
+		this.jdDadosDaEmpresa.setSize(300, 330);
+		this.jdDadosDaEmpresa.setModal(true);
+		this.jdDadosDaEmpresa.setLocationRelativeTo(null);
+		this.jdDadosDaEmpresa.setVisible(true);
 	}
 
 	private void atualizar() {
@@ -244,10 +219,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
 		jpListaDeDados.revalidate();
 		jtEmpresas.addMouseListener(this);
-		if (jbEditar.isEnabled() == true) {
-			jbEditar.setEnabled(false);
-			jbImprimir.setEnabled(false);
-		}
 	}
 
 	private void buttonBuscarConfirma() {
@@ -312,20 +283,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpBotoesCRUD.add(jbRefresh);
 		jbRefresh.addActionListener(this);
 
-		jbEditar = new JButton("Alterar");
-		jbEditar.setEnabled(false);
-		jpBotoesCRUD.add(jbEditar);
-		jbEditar.addActionListener(this);
-
-		jbReport = new JButton("Relatório");
-		jpBotoesCRUD.add(jbReport);
-		jbReport.addActionListener(this);
-
-		jbImprimir = new JButton("Imprimir");
-		jbImprimir.setEnabled(false);
-		jpBotoesCRUD.add(jbImprimir);
-		jbImprimir.addActionListener(this);
-
 		jpListaDeDados = new JPanel();
 		jtEmpresas = new JTable(dadosDaListagem());
 		jtEmpresas.addMouseListener(this);
@@ -362,7 +319,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			if (obj == jbSalvar) {
 				var critica = criticas();
 				if (critica != null)
-					JOptionPane.showMessageDialog(jdAdicionar, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(jdDadosDaEmpresa, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
 				else
 					salvarEmpresa();
 
@@ -371,7 +328,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			} else if (obj == jbAlterar) {
 				var critica = criticas();
 				if (critica != null)
-					JOptionPane.showMessageDialog(jdEditar, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(jdDadosDaEmpresa, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
 				else
 					alterarEmpresa();
 
@@ -392,16 +349,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			} else if (obj == jbRefresh) {
 				atualizar();
 			} else if (obj == jbAdicionar) {
-				adicionar();
-			} else if (obj == jbEditar) {
-				editar();
-			} else if (obj == jbReport) {
-			} else if (obj == jbImprimir) {
-				int linha;
-				linha = jtEmpresas.getSelectedRow();
-				Integer user_pk_id = Integer.parseInt(jtEmpresas.getModel().getValueAt(linha, 0).toString());
-				HashMap<String, Integer> parametro = new HashMap<String, Integer>();
-				parametro.put("user_pk_id", user_pk_id);
+				dadosDaEmpresa(null);
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
@@ -451,8 +399,9 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		if (empresaCadastrada != null) {
 			jtfId.setText(String.valueOf(empresaCadastrada.getId()));
 			jbSalvar.setEnabled(false);
-			JOptionPane.showMessageDialog(jdAdicionar, "Empresa cadastrada com sucesso!", "Alteração Realizada",
+			JOptionPane.showMessageDialog(jdDadosDaEmpresa, "Empresa cadastrada com sucesso!", "Alteração Realizada",
 					JOptionPane.INFORMATION_MESSAGE);
+			jdDadosDaEmpresa.dispose();
 		}
 	}
 
@@ -471,11 +420,11 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		empresa.setCpfCnpj(jftfCpfCnpj.getText());
 		empresa.setTelefone(jtfTelefone.getText());
 		empresa.setEndereco(endereco);
-		var empresaCadastrada = this.empresaController.alterar(token, empresa, idTemporario);
+		var empresaCadastrada = this.empresaController.alterar(token, empresa, jtfId.getText());
 		if (empresaCadastrada != null) {
 			jtfId.setText(String.valueOf(empresaCadastrada.getId()));
 			jbAlterar.setEnabled(false);
-			JOptionPane.showMessageDialog(jdEditar, "Alteração Realizada Com Sucesso!", "Alteração Realizada",
+			JOptionPane.showMessageDialog(jdDadosDaEmpresa, "Alteração Realizada Com Sucesso!", "Alteração Realizada",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -511,14 +460,12 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		try {
-			if (e.getSource() == jtEmpresas) {
-				if (jtEmpresas.getSelectedRow() != -1) {
-					jbEditar.setEnabled(true);
-					jbImprimir.setEnabled(true);
-					// limparDados();
-					idTemporario = jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString();
-					System.out.println(String.format("idTemporario=%s", idTemporario));
-				}
+			if (e.getSource() == jtEmpresas && jtEmpresas.getSelectedRow() != -1 && e.getClickCount() == 2) {
+				System.out.println(String.format("getSelectedRow=%d", jtEmpresas.getSelectedRow()));
+				// limparDados();
+				System.out.println(String.format("idTemporario=%s",
+						jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString()));
+				dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString());
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
