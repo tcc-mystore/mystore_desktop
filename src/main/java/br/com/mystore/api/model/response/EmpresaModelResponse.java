@@ -1,6 +1,7 @@
 package br.com.mystore.api.model.response;
 
 import br.com.mystore.api.model.EmpresaModel;
+import br.com.mystore.api.model.HeteoasModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import lombok.Setter;
 public class EmpresaModelResponse {
 
 	private Embedded _embedded;
+	private HeteoasModel _links;
 
 	@Getter
 	@Setter
