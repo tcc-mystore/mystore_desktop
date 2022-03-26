@@ -1,6 +1,6 @@
 package br.com.mystore.api.model.response;
 
-import br.com.mystore.api.model.EstadoBasicoModel;
+import br.com.mystore.api.model.EstadoModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +12,6 @@ public class EstadoModelResponse {
 	@Getter
 	@Setter
 	public class Embedded {
-		private EstadoBasicoModel[] estados;
+		private EstadoModel[] estados;
 	}
 }

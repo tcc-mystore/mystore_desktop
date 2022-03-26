@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
-import br.com.mystore.api.model.EmpresaBasicoModel;
+import br.com.mystore.api.model.EmpresaModel;
 import br.com.mystore.api.model.input.EmpresaInput;
 import br.com.mystore.api.model.response.EmpresaModelResponse;
 import br.com.mystore.core.AccessConfig;
@@ -29,7 +29,7 @@ public class EmpresaController {
 		this.restTemplate = new RestTemplate();
 	}
 
-	public EmpresaBasicoModel alterar(String token, EmpresaInput empresaInput, String id) {
+	public EmpresaModel alterar(String token, EmpresaInput empresaInput, String id) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
@@ -40,7 +40,7 @@ public class EmpresaController {
 			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
 			var responseEmpresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.PUT, httpEntity, EmpresaBasicoModel.class).getBody();
+					.exchange(resourceUri, HttpMethod.PUT, httpEntity, EmpresaModel.class).getBody();
 
 			return responseEmpresaBasicoModel;
 
@@ -51,7 +51,7 @@ public class EmpresaController {
 		}
 	}
 
-	public EmpresaBasicoModel cadastrar(String token, EmpresaInput empresaInput) {
+	public EmpresaModel cadastrar(String token, EmpresaInput empresaInput) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
@@ -62,7 +62,7 @@ public class EmpresaController {
 			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
 			var responseEmpresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaBasicoModel.class).getBody();
+					.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaModel.class).getBody();
 
 			return responseEmpresaBasicoModel;
 
@@ -83,7 +83,7 @@ public class EmpresaController {
 		return headers;
 	}
 
-	public List<EmpresaBasicoModel> todasEmpresas(String token) {
+	public List<EmpresaModel> todasEmpresas(String token) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
@@ -106,7 +106,7 @@ public class EmpresaController {
 		}
 	}
 
-	public EmpresaBasicoModel empresaPorId(String token, String id) {
+	public EmpresaModel empresaPorId(String token, String id) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
@@ -117,7 +117,7 @@ public class EmpresaController {
 			var httpEntity = new HttpEntity<Object>(headers);
 
 			var empresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaBasicoModel.class).getBody();
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModel.class).getBody();
 
 			return empresaBasicoModel;
 

@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
-import br.com.mystore.api.model.EstadoBasicoModel;
+import br.com.mystore.api.model.EstadoModel;
 import br.com.mystore.api.model.response.EstadoModelResponse;
 import br.com.mystore.core.AccessConfig;
 
@@ -40,7 +40,7 @@ public class EstadoController {
 		return headers;
 	}
 
-	public List<EstadoBasicoModel> todosEstados(String token) {
+	public List<EstadoModel> todosEstados(String token) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);

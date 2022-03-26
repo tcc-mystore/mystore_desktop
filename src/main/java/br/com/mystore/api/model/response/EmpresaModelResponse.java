@@ -1,6 +1,6 @@
 package br.com.mystore.api.model.response;
 
-import br.com.mystore.api.model.EmpresaBasicoModel;
+import br.com.mystore.api.model.EmpresaModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +13,6 @@ public class EmpresaModelResponse {
 	@Getter
 	@Setter
 	public class Embedded {
-		private EmpresaBasicoModel[] empresas;
+		private EmpresaModel[] empresas;
 	}
 }

@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
-import br.com.mystore.api.model.CidadeBacicoModel;
+import br.com.mystore.api.model.CidadeModel;
 import br.com.mystore.api.model.response.CidadeModelResponse;
 import br.com.mystore.core.AccessConfig;
 
@@ -40,7 +40,7 @@ public class CidadeController {
 		return headers;
 	}
 
-	public List<CidadeBacicoModel> todasCidades(String token) {
+	public List<CidadeModel> todasCidades(String token) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);

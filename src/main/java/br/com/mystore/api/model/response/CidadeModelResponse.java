@@ -1,6 +1,6 @@
 package br.com.mystore.api.model.response;
 
-import br.com.mystore.api.model.CidadeBacicoModel;
+import br.com.mystore.api.model.CidadeModel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +13,6 @@ public class CidadeModelResponse {
 	@Getter
 	@Setter
 	public class Embedded {
-		private CidadeBacicoModel[] cidades;
+		private CidadeModel[] cidades;
 	}
 }

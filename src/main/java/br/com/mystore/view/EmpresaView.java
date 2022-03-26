@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.ParseException;
-import java.util.HashMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -31,10 +30,12 @@ import javax.swing.text.MaskFormatter;
 import br.com.mystore.api.controller.CidadeController;
 import br.com.mystore.api.controller.EmpresaController;
 import br.com.mystore.api.controller.EstadoController;
-import br.com.mystore.api.model.CidadeBacicoModel;
-import br.com.mystore.api.model.EstadoBasicoModel;
+import br.com.mystore.api.model.CidadeModel;
+import br.com.mystore.api.model.EstadoModel;
 import br.com.mystore.api.model.input.CidadeInput;
+import br.com.mystore.api.model.input.EmpresaAtualizaInput;
 import br.com.mystore.api.model.input.EmpresaInput;
+import br.com.mystore.api.model.input.EnderecoAtualizaInput;
 import br.com.mystore.api.model.input.EnderecoInput;
 import br.com.mystore.utils.TabelaModeloObjeto;
 
@@ -43,11 +44,10 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private static final long serialVersionUID = 1L;
 	private JInternalFrame jifBuscar, jifListar;
 	private JLabel jlId, jlNome, jlTelefone, jlLogradouro, jlNumero, jlComplemento, jlBairro, jlCep, jlEstado, jlCidade;
-	private JTextField jtfId, jtfNome, jtfTelefone, jtfBuscar, jtfLogradouro, jtfNumero, jtfComplemento, jtfBairro,
-			jtfCep;
-	private JFormattedTextField jftfCpfCnpj;
-	private JComboBox<CidadeBacicoModel> jcbCidades;
-	private JComboBox<EstadoBasicoModel> jcbEstados;
+	private JTextField jtfId, jtfNome, jtfBuscar, jtfLogradouro, jtfNumero, jtfComplemento, jtfBairro, jtfEnderecoId;
+	private JFormattedTextField jftfCpfCnpj, jftfTelefone, jftfCep;
+	private JComboBox<CidadeModel> jcbCidades;
+	private JComboBox<EstadoModel> jcbEstados;
 	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar;
 	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj, jpFormulario;
 	private JTable jtEmpresas, jtEmpresasBuscar;
@@ -69,7 +69,10 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		this.estadoController = new EstadoController();
 	}
 
-	private void componentesComuns() throws ParseException {
+	public void dadosDaEmpresa(String id) throws ParseException {
+
+		this.jdDadosDaEmpresa = new JDialog((Frame) this.owner);
+
 		jpFormulario = new JPanel();
 		// 1
 		jlId = new JLabel("Código: ");
@@ -110,8 +113,8 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jlTelefone = new JLabel("Telefone: ");
 		jlTelefone.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlTelefone);
-		jtfTelefone = new JFormattedTextField(new MaskFormatter("(##) #####-####"));
-		jpFormulario.add(jtfTelefone);
+		jftfTelefone = new JFormattedTextField(new MaskFormatter("(##) #####-####"));
+		jpFormulario.add(jftfTelefone);
 
 		// 5
 		jlLogradouro = new JLabel("Rua/Av.: ");
@@ -145,14 +148,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jlCep = new JLabel("CEP: ");
 		jlCep.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlCep);
-		jtfCep = new JFormattedTextField(new MaskFormatter("##.###-###"));
-		jpFormulario.add(jtfCep);
+		jftfCep = new JFormattedTextField(new MaskFormatter("##.###-###"));
+		jpFormulario.add(jftfCep);
 
 		// 10
 		jlEstado = new JLabel("Estado: ");
 		jlEstado.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlEstado);
-		jcbCidades = new JComboBox<CidadeBacicoModel>();
+		jcbCidades = new JComboBox<CidadeModel>();
 		cidadeController.todasCidades(this.token).forEach(cidade -> jcbCidades.addItem(cidade));
 		jpFormulario.add(jcbCidades);
 
@@ -160,17 +163,9 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jlCidade = new JLabel("Cidade: ");
 		jlCidade.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlCidade);
-		jcbEstados = new JComboBox<EstadoBasicoModel>();
+		jcbEstados = new JComboBox<EstadoModel>();
 		estadoController.todosEstados(this.token).forEach(estado -> jcbEstados.addItem(estado));
 		jpFormulario.add(jcbEstados);
-
-	}
-
-	public void dadosDaEmpresa(String id) throws ParseException {
-
-		this.jdDadosDaEmpresa = new JDialog((Frame) this.owner);
-
-		componentesComuns();
 
 		if (id == null) {
 			this.jbSalvar = new JButton("Salvar");
@@ -181,14 +176,16 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 			jtfId.setText(String.valueOf(empresa.getId()));
 			jtfNome.setText(empresa.getNome());
-			jftfCpfCnpj.setText(empresa.getCpfCnpj());
-			// jtfTelefone.setText(empresa.getTelefone());
-			// jtfEnderecoId.setText(String.valueOf(empresa.getEndereco().getId()));
+			if (empresa.getCpfCnpj() != null)
+				tratandoCpfCnpj(empresa.getCpfCnpj().length(), empresa.getCpfCnpj());
+			jftfTelefone.setValue(empresa.getTelefone());
 			jtfLogradouro.setText(empresa.getEndereco().getLogradouro());
+			// Apenas para armazenar o FkEndereco
+			jtfEnderecoId = new JTextField(String.valueOf(empresa.getEndereco().getId()));
 			jtfNumero.setText(empresa.getEndereco().getNumero());
 			jtfComplemento.setText(empresa.getEndereco().getComplemento());
 			jtfBairro.setText(empresa.getEndereco().getBairro());
-			jtfCep.setText(empresa.getEndereco().getCep());
+			jftfCep.setValue(empresa.getEndereco().getCep());
 			jcbCidades.setSelectedItem(empresa.getEndereco().getCidade());
 
 			this.jbAlterar = new JButton("Alterar");
@@ -306,7 +303,8 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			dados[linha][2] = String
 					.valueOf(empresas.get(linha).getCpfCnpj() != null ? empresas.get(linha).getCpfCnpj() : "");
 			dados[linha][3] = String.valueOf(empresas.get(linha).getAtivo() ? "Ativo" : "Inativo");
-			dados[linha][4] = String.valueOf("");
+			if (empresas.get(linha).getEndereco() != null)
+				dados[linha][4] = empresas.get(linha).getEndereco().toString();
 		}
 		var jtModeloObjeto = new TabelaModeloObjeto(dados, colunas);
 		return jtModeloObjeto;
@@ -335,15 +333,9 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			} else if (obj == jbBuscar) {
 				buscar();
 			} else if (obj == rbCpf) {
-				jftfCpfCnpj.setValue(null);
-				maskFormatter.setMask("###.###.###-##");
-				jftfCpfCnpj.setEnabled(true);
-				jftfCpfCnpj.requestFocus();
+				tratandoCpfCnpj(14, null);
 			} else if (obj == rbCnpj) {
-				jftfCpfCnpj.setValue(null);
-				maskFormatter.setMask("##.###.###/####-##");
-				jftfCpfCnpj.setEnabled(true);
-				jftfCpfCnpj.requestFocus();
+				tratandoCpfCnpj(18, null);
 			} else if (obj == jbBuscarConfirma) {
 				buttonBuscarConfirma();
 			} else if (obj == jbRefresh) {
@@ -359,6 +351,21 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		}
 	}
 
+	private void tratandoCpfCnpj(int quantidadeCaracteres, String cpfCnpj) throws ParseException {
+		if (quantidadeCaracteres == 14) {
+			maskFormatter.setMask("###.###.###-##");
+			if (!rbCpf.isSelected())
+				rbCpf.setSelected(true);
+		} else {
+			maskFormatter.setMask("##.###.###/####-##");
+			if (!rbCnpj.isSelected())
+				rbCnpj.setSelected(true);
+		}
+		jftfCpfCnpj.setValue(cpfCnpj);
+		jftfCpfCnpj.setEnabled(true);
+		jftfCpfCnpj.requestFocus();
+	}
+
 	private void limparDados() throws ParseException {
 		jtfId.setText("");
 		buttonGroup.clearSelection();
@@ -368,31 +375,32 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jtfNome.setText("");
 		jtfNome.requestFocus();
 		jftfCpfCnpj.setEnabled(false);
-		jtfTelefone.setText("");
+		jftfTelefone.setText("");
 		jtfLogradouro.setText("");
 		jtfNumero.setText("");
 		jtfComplemento.setText("");
 		jtfBairro.setText("");
-		jtfCep.setText("");
+		jftfCep.setText("");
 		jcbCidades.setSelectedIndex(-1);
 		jcbEstados.setSelectedIndex(-1);
-		jbSalvar.setEnabled(true);
+		if (jbSalvar != null)
+			jbSalvar.setEnabled(true);
 	}
 
 	private void salvarEmpresa() {
 		var cidade = new CidadeInput();
-		cidade.setId(((CidadeBacicoModel) jcbCidades.getSelectedItem()).getId());
+		cidade.setId(((CidadeModel) jcbCidades.getSelectedItem()).getId());
 		var endereco = new EnderecoInput();
 		endereco.setLogradouro(jtfLogradouro.getText());
 		endereco.setNumero(jtfNumero.getText());
 		endereco.setComplemento(jtfComplemento.getText());
 		endereco.setBairro(jtfBairro.getText());
-		endereco.setCep(jtfCep.getText());
+		endereco.setCep(jftfCep.getText());
 		endereco.setCidade(cidade);
 		var empresa = new EmpresaInput();
 		empresa.setNome(jtfNome.getText());
 		empresa.setCpfCnpj(jftfCpfCnpj.getText());
-		empresa.setTelefone(jtfTelefone.getText());
+		empresa.setTelefone(jftfTelefone.getText());
 		empresa.setEndereco(endereco);
 		var empresaController = new EmpresaController();
 		var empresaCadastrada = empresaController.cadastrar(token, empresa);
@@ -407,18 +415,19 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 	private void alterarEmpresa() {
 		var cidade = new CidadeInput();
-		cidade.setId(((CidadeBacicoModel) jcbCidades.getSelectedItem()).getId());
-		var endereco = new EnderecoInput();
+		cidade.setId(((CidadeModel) jcbCidades.getSelectedItem()).getId());
+		var endereco = new EnderecoAtualizaInput();
+		endereco.setId(Integer.valueOf(jtfEnderecoId.getText()));
 		endereco.setLogradouro(jtfLogradouro.getText());
 		endereco.setNumero(jtfNumero.getText());
 		endereco.setComplemento(jtfComplemento.getText());
 		endereco.setBairro(jtfBairro.getText());
-		endereco.setCep(jtfCep.getText());
+		endereco.setCep(jftfCep.getText());
 		endereco.setCidade(cidade);
-		var empresa = new EmpresaInput();
+		var empresa = new EmpresaAtualizaInput();
 		empresa.setNome(jtfNome.getText());
 		empresa.setCpfCnpj(jftfCpfCnpj.getText());
-		empresa.setTelefone(jtfTelefone.getText());
+		empresa.setTelefone(jftfTelefone.getText());
 		empresa.setEndereco(endereco);
 		var empresaCadastrada = this.empresaController.alterar(token, empresa, jtfId.getText());
 		if (empresaCadastrada != null) {
@@ -437,7 +446,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		else if (jftfCpfCnpj.getText().equals("  .   .   /    -  ") || jftfCpfCnpj.getText().equals("   .   .   -  ")
 				|| jftfCpfCnpj.getText().equals(""))
 			return "Campo 'CPF/CNPJ' é obrigatório!";
-		else if (jtfTelefone.getText().equals("(  )      -    ") || jtfTelefone.getText().equals(""))
+		else if (jftfTelefone.getText().equals("(  )      -    ") || jftfTelefone.getText().equals(""))
 			return "Campo 'Telefone' é obrigatório!";
 		else if (jtfLogradouro.getText().equals(""))
 			return "Campo 'Logradouro' é obrigatório!";
@@ -447,7 +456,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			return "Campo 'Complemento' é obrigatório!";
 		else if (jtfBairro.getText().equals(""))
 			return "Campo 'Bairro' é obrigatório!";
-		else if (jtfCep.getText().equals(""))
+		else if (jftfCep.getText().equals(""))
 			return "Campo 'Cep' é obrigatório!";
 		else if (jcbCidades.getSelectedIndex() == -1)
 			return "Selecione uma 'Cidade'!";
