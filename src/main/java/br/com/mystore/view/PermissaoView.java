@@ -23,7 +23,7 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 	private JInternalFrame jifListar;
 	private JButton jbBuscar, jbRefresh, jbAdicionar;
 	private JPanel jpBotoesCRUD, jpListaDeDados;
-	private JTable jtEmpresas;
+	private JTable jtPermissoes;
 	private String token;
 	private PermissaoController permissaoController;
 
@@ -33,17 +33,17 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 
 	private void atualizar() {
 		jpListaDeDados.removeAll();
-		jtEmpresas = new JTable(dadosDaListagem());
-		jpListaDeDados.add(new JScrollPane(jtEmpresas));
+		jtPermissoes = new JTable(dadosDaListagem());
+		jpListaDeDados.add(new JScrollPane(jtPermissoes));
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
 		jpListaDeDados.revalidate();
-		jtEmpresas.addMouseListener(this);
+		jtPermissoes.addMouseListener(this);
 	}
 
 	public JInternalFrame listar() {
 		jifListar = new JInternalFrame();
 		jifListar.setSize(800, 300);
-		jifListar.setTitle("Empresas Cadastradas");
+		jifListar.setTitle("Permissoes Cadastradas");
 		jifListar.setClosable(true);
 		jifListar.setIconifiable(true);
 		jifListar.setMaximizable(true);
@@ -65,12 +65,12 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 		jbRefresh.addActionListener(this);
 
 		jpListaDeDados = new JPanel();
-		jtEmpresas = new JTable(dadosDaListagem());
-		jtEmpresas.getColumnModel().getColumn(0).setPreferredWidth(50);
-		jtEmpresas.getColumnModel().getColumn(1).setPreferredWidth(300);
-		jtEmpresas.getColumnModel().getColumn(2).setPreferredWidth(200);
-		jtEmpresas.addMouseListener(this);
-		jpListaDeDados.add(new JScrollPane(jtEmpresas));
+		jtPermissoes = new JTable(dadosDaListagem());
+		jtPermissoes.getColumnModel().getColumn(0).setPreferredWidth(50);
+		jtPermissoes.getColumnModel().getColumn(1).setPreferredWidth(300);
+		jtPermissoes.getColumnModel().getColumn(2).setPreferredWidth(200);
+		jtPermissoes.addMouseListener(this);
+		jpListaDeDados.add(new JScrollPane(jtPermissoes));
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
 
 		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
