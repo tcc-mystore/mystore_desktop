@@ -33,6 +33,16 @@ public class AuthorizationController {
 		;
 	}
 
+	public HttpHeaders createHeaders(String token) {
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add("Authorization", "Bearer " + token);
+
+		return headers;
+	}
+
 	private HttpHeaders createHeaders(String user, String password) {
 
 		String plainCreds = String.format("%s:%s", user, password);
