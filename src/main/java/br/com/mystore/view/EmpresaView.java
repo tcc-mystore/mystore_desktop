@@ -1,12 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package br.com.mystore.view;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -28,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.text.MaskFormatter;
 
 import br.com.mystore.api.controller.CidadeController;
@@ -40,17 +38,19 @@ import br.com.mystore.api.model.input.EmpresaInput;
 import br.com.mystore.api.model.input.EnderecoInput;
 import br.com.mystore.utils.TabelaModeloObjeto;
 
-public class EmpresaView implements ActionListener, MouseListener {
+public class EmpresaView extends JInternalFrame implements ActionListener, MouseListener {
 
-	private JInternalFrame jifBuscar, jifListar, jifSalvar;
+	private static final long serialVersionUID = 1L;
+	private JInternalFrame jifBuscar, jifListar;
 	private JLabel jlId, jlNome, jlTelefone, jlLogradouro, jlNumero, jlComplemento, jlBairro, jlCep, jlEstado, jlCidade;
 	private JTextField jtfId, jtfNome, jtfTelefone, jtfBuscar, jtfLogradouro, jtfNumero, jtfComplemento, jtfBairro,
 			jtfCep;
 	private JFormattedTextField jftfCpfCnpj;
 	private JComboBox<CidadeBacicoModel> jcbCidades;
 	private JComboBox<EstadoBasicoModel> jcbEstados;
-	private JButton jbEditar, jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbReport;
-	private JPanel jpAlterarCenter, jpListarNorth, jpListarCenter, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj;
+	private JButton jbEditar, jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbReport,
+			jbAdicionar;
+	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj;
 	private JTable jtEmpresas, jtEmpresasBuscar;
 	private JScrollPane jsp;
 	private JButton jbImprimir;
@@ -60,37 +60,47 @@ public class EmpresaView implements ActionListener, MouseListener {
 	private String token;
 	private CidadeController cidadeController;
 	private EstadoController estadoController;
+	private EmpresaController empresaController;
 	private JPanel jpFormulario;
-	private JDialog jdEditar;
+	private JDialog jdEditar, jdAdicionar;
+	private Window owner;
+	private String idTemporario;
 
 	public EmpresaView(String token) {
+		this.owner = SwingUtilities.getWindowAncestor(this);
 		this.token = token;
 		this.cidadeController = new CidadeController();
 		this.estadoController = new EstadoController();
 	}
 
-	public JInternalFrame adicionar() throws ParseException {
+	public void adicionar() throws ParseException {
+		this.jdAdicionar = new JDialog((Frame) this.owner);
+
 		componentesComuns();
 
-		jbSalvar = new JButton("Salvar");
+		this.jbSalvar = new JButton("Salvar");
+		this.jpFormulario.add(jbSalvar);
+		this.jbSalvar.addActionListener(this);
 
-		jbCancelar = new JButton("Cancelar");
+		this.jbCancelar = new JButton("Cancelar");
+		this.jpFormulario.add(jbCancelar);
+		this.jbCancelar.addActionListener(this);
 
-		jpFormulario.add(jbSalvar);
-		jpFormulario.add(jbCancelar);
-		jpFormulario.setLayout(new GridLayout(12, 2));
+		this.jpFormulario.setLayout(new GridLayout(12, 2));
 
-		jbSalvar.addActionListener(this);
-		jbCancelar.addActionListener(this);
+		this.jdAdicionar.getContentPane().setLayout(new BorderLayout());
+		this.jdAdicionar.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
 
-		jifSalvar.getContentPane().setLayout(new BorderLayout());
-		jifSalvar.getContentPane().add(jpFormulario, BorderLayout.CENTER);
-		jifSalvar.pack();
-		return jifSalvar;
+		this.jdAdicionar.setTitle("Cadastrar Empresa");
+		this.jdAdicionar.setSize(300, 330);
+		this.jdAdicionar.setModal(true);
+		this.jdAdicionar.setLocationRelativeTo(null);
+		this.jdAdicionar.setVisible(true);
 	}
 
 	private void componentesComuns() throws ParseException {
 		jpFormulario = new JPanel();
+		// 1
 		jlId = new JLabel("Código: ");
 		jlId.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlId);
@@ -98,12 +108,14 @@ public class EmpresaView implements ActionListener, MouseListener {
 		jtfId.setEnabled(false);
 		jpFormulario.add(jtfId);
 
+		// 2
 		jlNome = new JLabel("Nome: ");
 		jlNome.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlNome);
 		jtfNome = new JTextField();
 		jpFormulario.add(jtfNome);
 
+		// 3
 		jpCpfCnpj = new JPanel();
 		buttonGroup = new ButtonGroup();
 		rbCpf = new JRadioButton("CPF");
@@ -123,52 +135,60 @@ public class EmpresaView implements ActionListener, MouseListener {
 		jftfCpfCnpj.setEnabled(false);
 		jpFormulario.add(jftfCpfCnpj);
 
+		// 4
 		jlTelefone = new JLabel("Telefone: ");
 		jlTelefone.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlTelefone);
 		jtfTelefone = new JFormattedTextField(new MaskFormatter("(##) #####-####"));
 		jpFormulario.add(jtfTelefone);
 
+		// 5
 		jlLogradouro = new JLabel("Rua/Av.: ");
 		jlLogradouro.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlLogradouro);
 		jtfLogradouro = new JTextField();
 		jpFormulario.add(jtfLogradouro);
 
+		// 6
+		jlNumero = new JLabel("Número: ");
+		jlNumero.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlNumero);
 		jtfNumero = new JTextField();
 		jpFormulario.add(jtfNumero);
-		jlNumero = new JLabel("Número: ");
-		jlNumero.setHorizontalAlignment(SwingConstants.RIGHT);
 
+		// 7
 		jlComplemento = new JLabel("Complemento: ");
 		jlComplemento.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlComplemento);
 		jtfComplemento = new JTextField();
 		jpFormulario.add(jtfComplemento);
 
+		// 8
 		jlBairro = new JLabel("Bairro: ");
 		jlBairro.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlBairro);
 		jtfBairro = new JTextField();
 		jpFormulario.add(jtfBairro);
 
+		// 9
 		jlCep = new JLabel("CEP: ");
 		jlCep.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlCep);
 		jtfCep = new JFormattedTextField(new MaskFormatter("##.###-###"));
 		jpFormulario.add(jtfCep);
 
+		// 10
 		jlEstado = new JLabel("Estado: ");
 		jlEstado.setHorizontalAlignment(SwingConstants.RIGHT);
-		jpFormulario.add(jlCidade);
+		jpFormulario.add(jlEstado);
 		jcbCidades = new JComboBox<CidadeBacicoModel>();
 		cidadeController.todasCidades(this.token).forEach(cidade -> jcbCidades.addItem(cidade));
 		jpFormulario.add(jcbCidades);
 
+		// 11
 		jlCidade = new JLabel("Cidade: ");
 		jlCidade.setHorizontalAlignment(SwingConstants.RIGHT);
-		jpFormulario.add(jlEstado);
+		jpFormulario.add(jlCidade);
 		jcbEstados = new JComboBox<EstadoBasicoModel>();
 		estadoController.todosEstados(this.token).forEach(estado -> jcbEstados.addItem(estado));
 		jpFormulario.add(jcbEstados);
@@ -176,36 +196,53 @@ public class EmpresaView implements ActionListener, MouseListener {
 	}
 
 	public void editar() throws ParseException {
-		this.jdEditar = new JDialog();
+		if (idTemporario == null)
+			new Exception("Falha ao captuar a empresa selecionada!");
+
+		this.jdEditar = new JDialog((Frame) this.owner);
 
 		componentesComuns();
 
+		var empresa = empresaController.empresaPorId(token, idTemporario);
+
+		jtfId.setText(String.valueOf(empresa.getId()));
+		jtfNome.setText(empresa.getNome());
+		jftfCpfCnpj.setText(empresa.getCpfCnpj());
+		// jtfTelefone.setText(empresa.getTelefone());
+		// jtfEnderecoId.setText(String.valueOf(empresa.getEndereco().getId()));
+		jtfLogradouro.setText(empresa.getEndereco().getLogradouro());
+		jtfNumero.setText(empresa.getEndereco().getNumero());
+		jtfComplemento.setText(empresa.getEndereco().getComplemento());
+		jtfBairro.setText(empresa.getEndereco().getBairro());
+		jtfCep.setText(empresa.getEndereco().getCep());
+		jcbCidades.setSelectedItem(empresa.getEndereco().getCidade());
+
 		this.jbAlterar = new JButton("Alterar");
+		this.jpFormulario.add(jbAlterar);
+		this.jbAlterar.addActionListener(this);
 
 		this.jbCancelar = new JButton("Cancelar");
+		this.jpFormulario.add(jbCancelar);
+		this.jbCancelar.addActionListener(this);
 
-		this.jpAlterarCenter.add(jbAlterar);
-		this.jpAlterarCenter.add(jbCancelar);
-		this.jpAlterarCenter.setLayout(new GridLayout(12, 2));
+		this.jpFormulario.setLayout(new GridLayout(12, 2));
 
 		this.jdEditar.getContentPane().setLayout(new BorderLayout());
 		this.jdEditar.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
 
-		this.jdEditar.setTitle("Alterar Usuário");
-		this.jdEditar.setSize(300, 300);
+		this.jdEditar.setTitle("Alterar Empresa");
+		this.jdEditar.setSize(300, 330);
 		this.jdEditar.setModal(true);
 		this.jdEditar.setLocationRelativeTo(null);
 		this.jdEditar.setVisible(true);
-		this.jbAlterar.addActionListener(this);
-		this.jbCancelar.addActionListener(this);
 	}
 
 	private void atualizar() {
-		jpListarCenter.removeAll();
-		jtEmpresas = new JTable();
-		jpListarCenter.add(new JScrollPane(jtEmpresas));
-		jpListarCenter.setLayout(new GridLayout(1, 1));
-		jpListarCenter.revalidate();
+		jpListaDeDados.removeAll();
+		jtEmpresas = new JTable(dadosDaListagem());
+		jpListaDeDados.add(new JScrollPane(jtEmpresas));
+		jpListaDeDados.setLayout(new GridLayout(1, 1));
+		jpListaDeDados.revalidate();
 		jtEmpresas.addMouseListener(this);
 		if (jbEditar.isEnabled() == true) {
 			jbEditar.setEnabled(false);
@@ -261,24 +298,50 @@ public class EmpresaView implements ActionListener, MouseListener {
 		jifListar.setIconifiable(true);
 		jifListar.setMaximizable(true);
 
-		jpListarCenter = new JPanel();
-		jpListarNorth = new JPanel();
+		jpBotoesCRUD = new JPanel();
+
+		jbAdicionar = new JButton("Cadastrar");
+		jpBotoesCRUD.add(jbAdicionar);
+		jbAdicionar.addActionListener(this);
 
 		jbBuscar = new JButton("Buscar");
+		jpBotoesCRUD.add(jbBuscar);
+		jbBuscar.addActionListener(this);
 
 		jbRefresh = new JButton("Atualizar");
+		jpBotoesCRUD.add(jbRefresh);
+		jbRefresh.addActionListener(this);
 
-		jbEditar = new JButton("Editar");
+		jbEditar = new JButton("Alterar");
 		jbEditar.setEnabled(false);
+		jpBotoesCRUD.add(jbEditar);
+		jbEditar.addActionListener(this);
 
 		jbReport = new JButton("Relatório");
+		jpBotoesCRUD.add(jbReport);
+		jbReport.addActionListener(this);
 
 		jbImprimir = new JButton("Imprimir");
 		jbImprimir.setEnabled(false);
+		jpBotoesCRUD.add(jbImprimir);
+		jbImprimir.addActionListener(this);
 
-		var empresaControler = new EmpresaController();
+		jpListaDeDados = new JPanel();
+		jtEmpresas = new JTable(dadosDaListagem());
+		jtEmpresas.addMouseListener(this);
+		jpListaDeDados.add(new JScrollPane(jtEmpresas));
+		jpListaDeDados.setLayout(new GridLayout(1, 1));
+
+		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
+		jifListar.getContentPane().add(jpBotoesCRUD, BorderLayout.NORTH);
+		jifListar.getContentPane().add(jpListaDeDados, BorderLayout.CENTER);
+		return jifListar;
+	}
+
+	private TabelaModeloObjeto dadosDaListagem() {
+		empresaController = new EmpresaController();
 		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status", "Endereco" };
-		var empresas = empresaControler.todasEmpresas(this.token);
+		var empresas = empresaController.todasEmpresas(this.token);
 		var dados = new String[empresas.size()][colunas.length];
 		for (int linha = 0; linha < dados.length; linha++) {
 			dados[linha][0] = String.valueOf(empresas.get(linha).getId());
@@ -289,27 +352,7 @@ public class EmpresaView implements ActionListener, MouseListener {
 			dados[linha][4] = String.valueOf("");
 		}
 		var jtModeloObjeto = new TabelaModeloObjeto(dados, colunas);
-		jtEmpresas = new JTable(jtModeloObjeto);
-		jpListarCenter.add(new JScrollPane(jtEmpresas));
-		jpListarCenter.setLayout(new GridLayout(1, 1));
-
-		jpListarNorth.add(jbBuscar);
-		jpListarNorth.add(jbRefresh);
-		jpListarNorth.add(jbEditar);
-		jpListarNorth.add(jbReport);
-		jpListarNorth.add(jbImprimir);
-
-		jbBuscar.addActionListener(this);
-		jbRefresh.addActionListener(this);
-		jbEditar.addActionListener(this);
-		jbReport.addActionListener(this);
-		jbImprimir.addActionListener(this);
-		jtEmpresas.addMouseListener(this);
-
-		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
-		jifListar.getContentPane().add(jpListarNorth, BorderLayout.NORTH);
-		jifListar.getContentPane().add(jpListarCenter, BorderLayout.CENTER);
-		return jifListar;
+		return jtModeloObjeto;
 	}
 
 	@Override
@@ -319,51 +362,39 @@ public class EmpresaView implements ActionListener, MouseListener {
 			if (obj == jbSalvar) {
 				var critica = criticas();
 				if (critica != null)
-					JOptionPane.showMessageDialog(null, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(jdAdicionar, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
 				else
 					salvarEmpresa();
 
 			} else if (obj == jbCancelar) {
-				jtfId.setText("");
-				buttonGroup.clearSelection();
-				jftfCpfCnpj.setValue(null);
-				maskFormatter.setMask("");
-				jftfCpfCnpj.requestFocus();
-				jtfNome.setText("");
-				jtfNome.requestFocus();
-				jftfCpfCnpj.setEnabled(false);
-				jtfTelefone.setText("");
-				jtfLogradouro.setText("");
-				jtfNumero.setText("");
-				jtfComplemento.setText("");
-				jtfBairro.setText("");
-				jtfCep.setText("");
-				jcbCidades.setSelectedIndex(-1);
-				jcbEstados.setSelectedIndex(-1);
-				jbSalvar.setEnabled(true);
+				limparDados();
 			} else if (obj == jbAlterar) {
+				var critica = criticas();
+				if (critica != null)
+					JOptionPane.showMessageDialog(jdEditar, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
+				else
+					alterarEmpresa();
 
-				JOptionPane.showMessageDialog(null, "Alteração Realizada Com Sucesso!", "Alteração Realizada",
-						JOptionPane.INFORMATION_MESSAGE);
 			} else if (obj == jbBuscar) {
 				buscar();
 			} else if (obj == rbCpf) {
 				jftfCpfCnpj.setValue(null);
 				maskFormatter.setMask("###.###.###-##");
 				jftfCpfCnpj.setEnabled(true);
-				jftfCpfCnpj.requestFocus();// Ao ganhar foco a mascara é aplicada
+				jftfCpfCnpj.requestFocus();
 			} else if (obj == rbCnpj) {
 				jftfCpfCnpj.setValue(null);
 				maskFormatter.setMask("##.###.###/####-##");
 				jftfCpfCnpj.setEnabled(true);
-				jftfCpfCnpj.requestFocus();// Ao ganhar foco a mascara é aplicada
+				jftfCpfCnpj.requestFocus();
 			} else if (obj == jbBuscarConfirma) {
 				buttonBuscarConfirma();
 			} else if (obj == jbRefresh) {
 				atualizar();
+			} else if (obj == jbAdicionar) {
+				adicionar();
 			} else if (obj == jbEditar) {
 				editar();
-				
 			} else if (obj == jbReport) {
 			} else if (obj == jbImprimir) {
 				int linha;
@@ -372,11 +403,32 @@ public class EmpresaView implements ActionListener, MouseListener {
 				HashMap<String, Integer> parametro = new HashMap<String, Integer>();
 				parametro.put("user_pk_id", user_pk_id);
 			} else {
-				JOptionPane.showMessageDialog(null, "Ação desconecida nada foi implementado!", "Vazio...",
+				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
 			}
-		} catch (Exception exception) {
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
+	}
+
+	private void limparDados() throws ParseException {
+		jtfId.setText("");
+		buttonGroup.clearSelection();
+		jftfCpfCnpj.setValue(null);
+		maskFormatter.setMask("");
+		jftfCpfCnpj.requestFocus();
+		jtfNome.setText("");
+		jtfNome.requestFocus();
+		jftfCpfCnpj.setEnabled(false);
+		jtfTelefone.setText("");
+		jtfLogradouro.setText("");
+		jtfNumero.setText("");
+		jtfComplemento.setText("");
+		jtfBairro.setText("");
+		jtfCep.setText("");
+		jcbCidades.setSelectedIndex(-1);
+		jcbEstados.setSelectedIndex(-1);
+		jbSalvar.setEnabled(true);
 	}
 
 	private void salvarEmpresa() {
@@ -399,7 +451,32 @@ public class EmpresaView implements ActionListener, MouseListener {
 		if (empresaCadastrada != null) {
 			jtfId.setText(String.valueOf(empresaCadastrada.getId()));
 			jbSalvar.setEnabled(false);
-			JOptionPane.showMessageDialog(null, "Empresa cadastrada com sucesso!");
+			JOptionPane.showMessageDialog(jdAdicionar, "Empresa cadastrada com sucesso!", "Alteração Realizada",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+
+	private void alterarEmpresa() {
+		var cidade = new CidadeInput();
+		cidade.setId(((CidadeBacicoModel) jcbCidades.getSelectedItem()).getId());
+		var endereco = new EnderecoInput();
+		endereco.setLogradouro(jtfLogradouro.getText());
+		endereco.setNumero(jtfNumero.getText());
+		endereco.setComplemento(jtfComplemento.getText());
+		endereco.setBairro(jtfBairro.getText());
+		endereco.setCep(jtfCep.getText());
+		endereco.setCidade(cidade);
+		var empresa = new EmpresaInput();
+		empresa.setNome(jtfNome.getText());
+		empresa.setCpfCnpj(jftfCpfCnpj.getText());
+		empresa.setTelefone(jtfTelefone.getText());
+		empresa.setEndereco(endereco);
+		var empresaCadastrada = this.empresaController.alterar(token, empresa, idTemporario);
+		if (empresaCadastrada != null) {
+			jtfId.setText(String.valueOf(empresaCadastrada.getId()));
+			jbAlterar.setEnabled(false);
+			JOptionPane.showMessageDialog(jdEditar, "Alteração Realizada Com Sucesso!", "Alteração Realizada",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -433,14 +510,18 @@ public class EmpresaView implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getSource() == jtEmpresas) {
-			if (jtEmpresas.getSelectedRow() != -1) {
-				jbEditar.setEnabled(true);
-				jbImprimir.setEnabled(true);
-				System.out.println(String.format("Linha=%d e Coluna=%d e Valor=%s", jtEmpresas.getSelectedRow(),
-						jtEmpresas.getSelectedColumn(),
-						jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), jtEmpresas.getSelectedColumn())));
+		try {
+			if (e.getSource() == jtEmpresas) {
+				if (jtEmpresas.getSelectedRow() != -1) {
+					jbEditar.setEnabled(true);
+					jbImprimir.setEnabled(true);
+					// limparDados();
+					idTemporario = jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString();
+					System.out.println(String.format("idTemporario=%s", idTemporario));
+				}
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 

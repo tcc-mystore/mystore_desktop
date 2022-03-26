@@ -26,7 +26,7 @@ import javax.swing.SwingConstants;
 import br.com.mystore.api.model.UsuarioAutenticadoModel;
 import br.com.mystore.utils.DataHora;
 
-public class PrincipalView extends JFrame implements ActionListener {
+public class PrincipalView2 extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JLabel jlUsuario, jlIdEmpresa, jlData, jlHora, jlSessaoIdEmpresa, jlSessaoData, jlSessaoHora, jlStatus,
@@ -41,7 +41,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JToolBar jtbFerramentas;
 	private JButton jbEmpresa,jbSair, jbSobre;
 
-	public PrincipalView(UsuarioAutenticadoModel usuario) {
+	public PrincipalView2(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
 		this.setTitle("Área de Trabalho - My Store");
 		this.setSize(800, 700);

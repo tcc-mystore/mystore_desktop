@@ -29,6 +29,28 @@ public class EmpresaController {
 		this.restTemplate = new RestTemplate();
 	}
 
+	public EmpresaBasicoModel alterar(String token, EmpresaInput empresaInput, String id) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
+
+			var responseEmpresaBasicoModel = restTemplate
+					.exchange(resourceUri, HttpMethod.PUT, httpEntity, EmpresaBasicoModel.class).getBody();
+
+			return responseEmpresaBasicoModel;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
 	public EmpresaBasicoModel cadastrar(String token, EmpresaInput empresaInput) {
 
 		try {
@@ -76,6 +98,28 @@ public class EmpresaController {
 
 			var empresaBacicoModels = Arrays.asList(responseEmpresaBacicoModel.get_embedded().getEmpresas());
 			return empresaBacicoModels;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public EmpresaBasicoModel empresaPorId(String token, String id) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var empresaBasicoModel = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaBasicoModel.class).getBody();
+
+			return empresaBasicoModel;
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
