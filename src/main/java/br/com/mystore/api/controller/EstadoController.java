@@ -1,13 +1,10 @@
 package br.com.mystore.api.controller;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +15,7 @@ import br.com.mystore.api.model.EstadoModel;
 import br.com.mystore.api.model.response.EstadoModelResponse;
 import br.com.mystore.core.AccessConfig;
 
-public class EstadoController {
+public class EstadoController extends AuthorizationController {
 
 	private static final String RESOURCE_PATH = "/v1/estados";
 
@@ -28,16 +25,6 @@ public class EstadoController {
 
 	public EstadoController() {
 		this.restTemplate = new RestTemplate();
-	}
-
-	private HttpHeaders createHeaders(String token) {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("Authorization", "Bearer " + token);
-
-		return headers;
 	}
 
 	public List<EstadoModel> todosEstados(String token) {
@@ -50,11 +37,10 @@ public class EstadoController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			var responseCidadeBacicoModel = restTemplate
+			var responseCidadeModel = restTemplate
 					.exchange(resourceUri, HttpMethod.GET, httpEntity, EstadoModelResponse.class).getBody();
 
-			var estadoBacicoModels = Arrays.asList(responseCidadeBacicoModel.get_embedded().getEstados());
-			return estadoBacicoModels;
+			return Arrays.asList(responseCidadeModel.get_embedded().getEstados());
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);

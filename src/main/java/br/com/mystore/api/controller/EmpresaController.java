@@ -1,13 +1,10 @@
 package br.com.mystore.api.controller;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +16,7 @@ import br.com.mystore.api.model.input.EmpresaInput;
 import br.com.mystore.api.model.response.EmpresaModelResponse;
 import br.com.mystore.core.AccessConfig;
 
-public class EmpresaController {
+public class EmpresaController extends AuthorizationController {
 
 	private static final String RESOURCE_PATH = "/v1/empresas";
 
@@ -39,10 +36,7 @@ public class EmpresaController {
 
 			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
-			var responseEmpresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.PUT, httpEntity, EmpresaModel.class).getBody();
-
-			return responseEmpresaBasicoModel;
+			return restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, EmpresaModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -61,26 +55,13 @@ public class EmpresaController {
 
 			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
-			var responseEmpresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaModel.class).getBody();
-
-			return responseEmpresaBasicoModel;
+			return restTemplate.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
 		} catch (RestClientResponseException e) {
 			throw new ApiException(e.getMessage(), e);
 		}
-	}
-
-	private HttpHeaders createHeaders(String token) {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("Authorization", "Bearer " + token);
-
-		return headers;
 	}
 
 	public List<EmpresaModel> todasEmpresas(String token) {
@@ -93,11 +74,10 @@ public class EmpresaController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			var responseEmpresaBacicoModel = restTemplate
+			var responseEmpresaModel = restTemplate
 					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModelResponse.class).getBody();
 
-			var empresaBacicoModels = Arrays.asList(responseEmpresaBacicoModel.get_embedded().getEmpresas());
-			return empresaBacicoModels;
+			return Arrays.asList(responseEmpresaModel.get_embedded().getEmpresas());
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -116,10 +96,7 @@ public class EmpresaController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			var empresaBasicoModel = restTemplate
-					.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModel.class).getBody();
-
-			return empresaBasicoModel;
+			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);

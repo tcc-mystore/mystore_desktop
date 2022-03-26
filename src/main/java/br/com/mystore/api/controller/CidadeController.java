@@ -1,13 +1,10 @@
 package br.com.mystore.api.controller;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +15,7 @@ import br.com.mystore.api.model.CidadeModel;
 import br.com.mystore.api.model.response.CidadeModelResponse;
 import br.com.mystore.core.AccessConfig;
 
-public class CidadeController {
+public class CidadeController extends AuthorizationController {
 
 	private static final String RESOURCE_PATH = "/v1/cidades";
 
@@ -28,16 +25,6 @@ public class CidadeController {
 
 	public CidadeController() {
 		this.restTemplate = new RestTemplate();
-	}
-
-	private HttpHeaders createHeaders(String token) {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add("Authorization", "Bearer " + token);
-
-		return headers;
 	}
 
 	public List<CidadeModel> todasCidades(String token) {
@@ -50,11 +37,10 @@ public class CidadeController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			var responseCidadeBacicoModel = restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, CidadeModelResponse.class).getBody();
+			var responseCidadeModel = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, CidadeModelResponse.class).getBody();
 
-			var cidadeBacicoModels = Arrays.asList(responseCidadeBacicoModel.get_embedded().getCidades());
-
-			return cidadeBacicoModels;
+			return Arrays.asList(responseCidadeModel.get_embedded().getCidades());
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
