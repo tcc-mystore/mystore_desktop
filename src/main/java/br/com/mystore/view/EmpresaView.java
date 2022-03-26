@@ -155,17 +155,18 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jlEstado = new JLabel("Estado: ");
 		jlEstado.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlEstado);
-		jcbCidades = new JComboBox<CidadeModel>();
-		cidadeController.todasCidades(this.token).forEach(cidade -> jcbCidades.addItem(cidade));
-		jpFormulario.add(jcbCidades);
+		jcbEstados = new JComboBox<EstadoModel>();
+		jcbEstados.addActionListener(this);
+		estadoController.todosEstados(this.token).forEach(estado -> jcbEstados.addItem(estado));
+		jpFormulario.add(jcbEstados);
 
 		// 11
 		jlCidade = new JLabel("Cidade: ");
 		jlCidade.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlCidade);
-		jcbEstados = new JComboBox<EstadoModel>();
-		estadoController.todosEstados(this.token).forEach(estado -> jcbEstados.addItem(estado));
-		jpFormulario.add(jcbEstados);
+		jcbCidades = new JComboBox<CidadeModel>();
+		cidadeController.todasCidades(this.token).forEach(cidade -> jcbCidades.addItem(cidade));
+		jpFormulario.add(jcbCidades);
 
 		if (id == null) {
 			this.jbSalvar = new JButton("Salvar");
@@ -186,8 +187,11 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			jtfComplemento.setText(empresa.getEndereco().getComplemento());
 			jtfBairro.setText(empresa.getEndereco().getBairro());
 			jftfCep.setValue(empresa.getEndereco().getCep());
-			jcbCidades.setSelectedItem(empresa.getEndereco().getCidade());
-
+			jcbEstados.getModel().setSelectedItem(empresa.getEndereco().getCidade().getEstado());
+			jcbCidades.getModel().setSelectedItem(empresa.getEndereco().getCidade());
+			System.out.println(empresa.toString());
+			System.out.println(empresa.getEndereco().toString());
+			System.out.println(empresa.getEndereco().getCidade().toString());
 			this.jbAlterar = new JButton("Alterar");
 			this.jpFormulario.add(jbAlterar);
 			this.jbAlterar.addActionListener(this);
@@ -260,8 +264,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 	public JInternalFrame listar() {
 		jifListar = new JInternalFrame();
-		jifListar.setTitle("Usuários Cadastrados");
-		jifListar.setSize(1250, 400);
+		jifListar.setTitle("Empresas Cadastradas");
 		jifListar.setClosable(true);
 		jifListar.setIconifiable(true);
 		jifListar.setMaximizable(true);
@@ -273,6 +276,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jbAdicionar.addActionListener(this);
 
 		jbBuscar = new JButton("Buscar");
+		jbBuscar.setEnabled(false);
 		jpBotoesCRUD.add(jbBuscar);
 		jbBuscar.addActionListener(this);
 
@@ -289,6 +293,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
 		jifListar.getContentPane().add(jpBotoesCRUD, BorderLayout.NORTH);
 		jifListar.getContentPane().add(jpListaDeDados, BorderLayout.CENTER);
+		jifListar.pack();
 		return jifListar;
 	}
 
@@ -306,8 +311,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			if (empresas.get(linha).getEndereco() != null)
 				dados[linha][4] = empresas.get(linha).getEndereco().toString();
 		}
-		var jtModeloObjeto = new TabelaModeloObjeto(dados, colunas);
-		return jtModeloObjeto;
+		return new TabelaModeloObjeto(dados, colunas);
 	}
 
 	@Override
@@ -342,6 +346,15 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 				atualizar();
 			} else if (obj == jbAdicionar) {
 				dadosDaEmpresa(null);
+			} else if (obj == jcbEstados) {
+				jcbCidades.removeAllItems();
+				// Provisório
+				if (jcbEstados.getSelectedItem() != null)
+					cidadeController.todasCidades(this.token).forEach(cidade -> {
+						if (((EstadoModel) jcbEstados.getSelectedItem()).getId() == cidade.getEstado().getId())
+							jcbCidades.addItem(cidade);
+					});
+				jcbCidades.setSelectedIndex(-1);
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
@@ -356,13 +369,13 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			maskFormatter.setMask("###.###.###-##");
 			if (!rbCpf.isSelected())
 				rbCpf.setSelected(true);
-		} else {
+		} else if (quantidadeCaracteres == 18) {
 			maskFormatter.setMask("##.###.###/####-##");
 			if (!rbCnpj.isSelected())
 				rbCnpj.setSelected(true);
 		}
 		jftfCpfCnpj.setValue(cpfCnpj);
-		jftfCpfCnpj.setEnabled(true);
+		jftfCpfCnpj.setEnabled(rbCpf.isSelected() || rbCnpj.isSelected());
 		jftfCpfCnpj.requestFocus();
 	}
 
@@ -435,6 +448,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			jbAlterar.setEnabled(false);
 			JOptionPane.showMessageDialog(jdDadosDaEmpresa, "Alteração Realizada Com Sucesso!", "Alteração Realizada",
 					JOptionPane.INFORMATION_MESSAGE);
+			jdDadosDaEmpresa.dispose();
 		}
 	}
 
