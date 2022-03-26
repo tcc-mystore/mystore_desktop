@@ -1,6 +1,7 @@
 package br.com.mystore.view;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Window;
@@ -26,6 +27,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.MaskFormatter;
+
+import org.springframework.format.annotation.NumberFormat.Style;
 
 import br.com.mystore.api.controller.CidadeController;
 import br.com.mystore.api.controller.EmpresaController;
@@ -286,6 +289,10 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 		jpListaDeDados = new JPanel();
 		jtEmpresas = new JTable(dadosDaListagem());
+		jtEmpresas.getColumnModel().getColumn(0).setPreferredWidth(50);
+		jtEmpresas.getColumnModel().getColumn(1).setPreferredWidth(150);
+		jtEmpresas.getColumnModel().getColumn(2).setPreferredWidth(150);
+		jtEmpresas.getColumnModel().getColumn(3).setPreferredWidth(50);
 		jtEmpresas.addMouseListener(this);
 		jpListaDeDados.add(new JScrollPane(jtEmpresas));
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
@@ -299,7 +306,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 	private TabelaModeloObjeto dadosDaListagem() {
 		empresaController = new EmpresaController();
-		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status", "Endereco" };
+		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status"/* , "Endereco" */ };
 		var empresas = empresaController.todasEmpresas(this.token);
 		var dados = new String[empresas.size()][colunas.length];
 		for (int linha = 0; linha < dados.length; linha++) {
@@ -308,8 +315,10 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			dados[linha][2] = String
 					.valueOf(empresas.get(linha).getCpfCnpj() != null ? empresas.get(linha).getCpfCnpj() : "");
 			dados[linha][3] = String.valueOf(empresas.get(linha).getAtivo() ? "Ativo" : "Inativo");
-			if (empresas.get(linha).getEndereco() != null)
-				dados[linha][4] = empresas.get(linha).getEndereco().toString();
+			/*
+			 * if (empresas.get(linha).getEndereco() != null) dados[linha][4] =
+			 * empresas.get(linha).getEndereco().toString();
+			 */
 		}
 		return new TabelaModeloObjeto(dados, colunas);
 	}
@@ -466,8 +475,8 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			return "Campo 'Logradouro' é obrigatório!";
 		else if (jtfNumero.getText().equals(""))
 			return "Campo 'Número' é obrigatório!";
-		else if (jtfComplemento.getText().equals(""))
-			return "Campo 'Complemento' é obrigatório!";
+		// else if (jtfComplemento.getText().equals(""))
+		// return "Campo 'Complemento' é obrigatório!";
 		else if (jtfBairro.getText().equals(""))
 			return "Campo 'Bairro' é obrigatório!";
 		else if (jftfCep.getText().equals(""))
