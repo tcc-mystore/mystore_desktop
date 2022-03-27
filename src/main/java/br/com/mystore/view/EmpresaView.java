@@ -317,36 +317,35 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			Object obj = e.getSource();
-			if (obj == jbSalvar) {
+			if (e.getSource() == jbSalvar) {
 				var critica = criticas();
 				if (critica != null)
 					JOptionPane.showMessageDialog(jdDadosDaEmpresa, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
 				else
 					salvarEmpresa();
 
-			} else if (obj == jbCancelar) {
+			} else if (e.getSource() == jbCancelar) {
 				limparDados();
-			} else if (obj == jbAlterar) {
+			} else if (e.getSource() == jbAlterar) {
 				var critica = criticas();
 				if (critica != null)
 					JOptionPane.showMessageDialog(jdDadosDaEmpresa, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
 				else
 					alterarEmpresa();
 
-			} else if (obj == jbBuscar) {
+			} else if (e.getSource() == jbBuscar) {
 				buscar();
-			} else if (obj == rbCpf) {
+			} else if (e.getSource() == rbCpf) {
 				tratandoCpfCnpj(14, null);
-			} else if (obj == rbCnpj) {
+			} else if (e.getSource() == rbCnpj) {
 				tratandoCpfCnpj(18, null);
-			} else if (obj == jbBuscarConfirma) {
+			} else if (e.getSource() == jbBuscarConfirma) {
 				buttonBuscarConfirma();
-			} else if (obj == jbRefresh) {
+			} else if (e.getSource() == jbRefresh) {
 				atualizar();
-			} else if (obj == jbAdicionar) {
+			} else if (e.getSource() == jbAdicionar) {
 				dadosDaEmpresa(null);
-			} else if (obj == jcbEstados) {
+			} else if (e.getSource() == jcbEstados) {
 				jcbCidades.removeAllItems();
 				// Provisório
 				if (jcbEstados.getSelectedItem() != null)
