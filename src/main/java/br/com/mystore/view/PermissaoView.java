@@ -43,7 +43,7 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 	public JInternalFrame listar() {
 		jifListar = new JInternalFrame();
 		jifListar.setSize(800, 300);
-		jifListar.setTitle("Permissoes Cadastradas");
+		jifListar.setTitle("Permissões Cadastradas");
 		jifListar.setClosable(true);
 		jifListar.setIconifiable(true);
 		jifListar.setMaximizable(true);

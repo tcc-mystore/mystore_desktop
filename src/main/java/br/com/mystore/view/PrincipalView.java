@@ -39,7 +39,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
-	private JButton jbEmpresa,jbSair, jbSobre;
+	private JButton jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
@@ -58,13 +58,27 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JToolBar ferramentas() {
 		jtbFerramentas = new JToolBar("Ferramentas", JToolBar.HORIZONTAL);
 
+		jbGrupo = new JButton();
+		jbGrupo.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/grupos.png")));
+		jbGrupo.setToolTipText("Grupos de Permissões");
+		jbGrupo.setFocusable(false);
+		jbGrupo.addActionListener(this);
+		jtbFerramentas.add(jbGrupo);
+
+		jbPermissao = new JButton();
+		jbPermissao.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/permissao.png")));
+		jbPermissao.setToolTipText("Permissões do Sistema");
+		jbPermissao.setFocusable(false);
+		jbPermissao.addActionListener(this);
+		jtbFerramentas.add(jbPermissao);
+
 		jbEmpresa = new JButton();
 		jbEmpresa.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/empresa.png")));
 		jbEmpresa.setToolTipText("Cadastro de Epresas");
 		jbEmpresa.setFocusable(false);
 		jbEmpresa.addActionListener(this);
 		jtbFerramentas.add(jbEmpresa);
-		
+
 		jbSobre = new JButton();
 		jbSobre.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/sobre.png")));
 		jbSobre.setToolTipText("Sobre");
@@ -85,9 +99,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JMenuBar barraMenu() {
 		jmbBarra = new JMenuBar();
 
-		//jmbBarra.add(menuCadastro());
+		// jmbBarra.add(menuCadastro());
 
-		//jmbBarra.add(menuConsultas());
+		// jmbBarra.add(menuConsultas());
 
 		jmbBarra.add(ferramentas());
 		return jmbBarra;
@@ -166,18 +180,24 @@ public class PrincipalView extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == jbEmpresa) {
+			if (e.getSource() == jbGrupo) {
+				addFrame(new GrupoView(usuario.getAccess_token()).listar());
+			} else if (e.getSource() == jbPermissao) {
+				addFrame(new PermissaoView(usuario.getAccess_token()).listar());
+			} else if (e.getSource() == jbEmpresa) {
 				addFrame(new EmpresaView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbSair) {
 				fecharAplicacao();
 			} else if (e.getSource() == jbSobre) {
 				new SobreView();
 			} else {
-				JOptionPane.showMessageDialog(null, "Ação não implementada", "Operação impossível", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Ação não implementada", "Operação impossível",
+						JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Erro encontrado: " + ex.getMessage(), "Operação falhou", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Erro encontrado: " + ex.getMessage(), "Operação falhou",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -190,10 +210,8 @@ public class PrincipalView extends JFrame implements ActionListener {
 									+ desktopView.getAllFrames().length + " janela(s) aberta(s)",
 							"Operação impossível", JOptionPane.ERROR_MESSAGE);
 		} else {
-			int confirmaSaida = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fechar" + "\n o sistema?", "Saindo...", JOptionPane.YES_OPTION);
-			if (confirmaSaida == JOptionPane.YES_OPTION) {
+			if (JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fechar" + "\n o sistema?", "Saindo...", JOptionPane.YES_OPTION) == JOptionPane.YES_OPTION)
 				System.exit(0);
-			}
 		}
 	}
 
