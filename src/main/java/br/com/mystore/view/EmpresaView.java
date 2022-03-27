@@ -1,7 +1,6 @@
 package br.com.mystore.view;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Window;
@@ -27,8 +26,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.MaskFormatter;
-
-import org.springframework.format.annotation.NumberFormat.Style;
 
 import br.com.mystore.api.controller.CidadeController;
 import br.com.mystore.api.controller.EmpresaController;
@@ -170,14 +167,15 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jcbCidades = new JComboBox<CidadeModel>();
 		cidadeController.todasCidades(this.token).forEach(cidade -> jcbCidades.addItem(cidade));
 		jpFormulario.add(jcbCidades);
-
+		var titulo = "";
 		if (id == null) {
+			titulo = "Cadastrar Empresa";
 			this.jbSalvar = new JButton("Salvar");
 			this.jpFormulario.add(jbSalvar);
 			this.jbSalvar.addActionListener(this);
 		} else {
+			titulo = "Alterar Empresa";
 			var empresa = empresaController.empresaPorId(token, id);
-
 			jtfId.setText(String.valueOf(empresa.getId()));
 			jtfNome.setText(empresa.getNome());
 			if (empresa.getCpfCnpj() != null)
@@ -192,9 +190,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			jftfCep.setValue(empresa.getEndereco().getCep());
 			jcbEstados.getModel().setSelectedItem(empresa.getEndereco().getCidade().getEstado());
 			jcbCidades.getModel().setSelectedItem(empresa.getEndereco().getCidade());
-			System.out.println(empresa.toString());
-			System.out.println(empresa.getEndereco().toString());
-			System.out.println(empresa.getEndereco().getCidade().toString());
 			this.jbAlterar = new JButton("Alterar");
 			this.jpFormulario.add(jbAlterar);
 			this.jbAlterar.addActionListener(this);
@@ -209,7 +204,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		this.jdDadosDaEmpresa.getContentPane().setLayout(new BorderLayout());
 		this.jdDadosDaEmpresa.getContentPane().add(this.jpFormulario, BorderLayout.CENTER);
 
-		this.jdDadosDaEmpresa.setTitle("Alterar Empresa");
+		this.jdDadosDaEmpresa.setTitle(titulo);
 		this.jdDadosDaEmpresa.setSize(300, 330);
 		this.jdDadosDaEmpresa.setModal(true);
 		this.jdDadosDaEmpresa.setLocationRelativeTo(null);
@@ -306,7 +301,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 
 	private TabelaModeloObjeto dadosDaListagem() {
 		empresaController = new EmpresaController();
-		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status"/* , "Endereco" */ };
+		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status" };
 		var empresas = empresaController.todasEmpresas(this.token);
 		var dados = new String[empresas.size()][colunas.length];
 		for (int linha = 0; linha < dados.length; linha++) {
@@ -315,10 +310,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			dados[linha][2] = String
 					.valueOf(empresas.get(linha).getCpfCnpj() != null ? empresas.get(linha).getCpfCnpj() : "");
 			dados[linha][3] = String.valueOf(empresas.get(linha).getAtivo() ? "Ativo" : "Inativo");
-			/*
-			 * if (empresas.get(linha).getEndereco() != null) dados[linha][4] =
-			 * empresas.get(linha).getEndereco().toString();
-			 */
 		}
 		return new TabelaModeloObjeto(dados, colunas);
 	}
@@ -475,8 +466,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			return "Campo 'Logradouro' é obrigatório!";
 		else if (jtfNumero.getText().equals(""))
 			return "Campo 'Número' é obrigatório!";
-		// else if (jtfComplemento.getText().equals(""))
-		// return "Campo 'Complemento' é obrigatório!";
 		else if (jtfBairro.getText().equals(""))
 			return "Campo 'Bairro' é obrigatório!";
 		else if (jftfCep.getText().equals(""))
@@ -493,10 +482,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	public void mouseClicked(MouseEvent e) {
 		try {
 			if (e.getSource() == jtEmpresas && jtEmpresas.getSelectedRow() != -1 && e.getClickCount() == 2) {
-				System.out.println(String.format("getSelectedRow=%d", jtEmpresas.getSelectedRow()));
-				// limparDados();
-				System.out.println(String.format("idTemporario=%s",
-						jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString()));
 				dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString());
 			}
 		} catch (Exception ex) {
