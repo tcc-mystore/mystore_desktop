@@ -42,14 +42,14 @@ import br.com.mystore.utils.TabelaModeloObjeto;
 public class EmpresaView extends JInternalFrame implements ActionListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
-	private JInternalFrame jifBuscar, jifListar;
+	private JInternalFrame jifListar;
 	private JLabel jlId, jlNome, jlTelefone, jlLogradouro, jlNumero, jlComplemento, jlBairro, jlCep, jlEstado, jlCidade;
-	private JTextField jtfId, jtfNome, jtfBuscar, jtfLogradouro, jtfNumero, jtfComplemento, jtfBairro, jtfEnderecoId;
+	private JTextField jtfId, jtfNome, jtfLogradouro, jtfNumero, jtfComplemento, jtfBairro, jtfEnderecoId;
 	private JFormattedTextField jftfCpfCnpj, jftfTelefone, jftfCep;
 	private JComboBox<CidadeModel> jcbCidades;
 	private JComboBox<EstadoModel> jcbEstados;
 	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar;
-	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpBuscarNorth, jpCpfCnpj, jpFormulario;
+	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpCpfCnpj, jpFormulario;
 	private JTable jtEmpresas, jtEmpresasBuscar;
 	private JScrollPane jsp;
 	private ButtonGroup buttonGroup;
@@ -211,9 +211,15 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		this.jdDadosDaEmpresa.setVisible(true);
 	}
 
-	private void atualizar() {
+	private void carregaDados() {
+		if (jpListaDeDados == null)
+			jpListaDeDados = new JPanel();
 		jpListaDeDados.removeAll();
 		jtEmpresas = new JTable(dadosDaListagem());
+		jtEmpresas.getColumnModel().getColumn(0).setPreferredWidth(50);
+		jtEmpresas.getColumnModel().getColumn(1).setPreferredWidth(150);
+		jtEmpresas.getColumnModel().getColumn(2).setPreferredWidth(150);
+		jtEmpresas.getColumnModel().getColumn(3).setPreferredWidth(50);
 		jpListaDeDados.add(new JScrollPane(jtEmpresas));
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
 		jpListaDeDados.revalidate();
@@ -227,37 +233,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpBuscarCenter.add(jsp);
 		jpBuscarCenter.setLayout(new GridLayout(1, 1));
 		jsp.revalidate();
-	}
-
-	private JInternalFrame buscar() {
-		jifBuscar = new JInternalFrame();
-		jifBuscar.setTitle("Consultar Empresas");
-		jifBuscar.setSize(1250, 400);
-		jifBuscar.setClosable(true);
-		jifBuscar.setIconifiable(true);
-		jifBuscar.setMaximizable(true);
-
-		jpBuscarNorth = new JPanel();
-		jpBuscarCenter = new JPanel();
-
-		jtfBuscar = new JTextField();
-
-		jbBuscarConfirma = new JButton();
-		jbBuscarConfirma.addActionListener(this);
-
-		jpBuscarNorth.add(jtfBuscar);
-		jpBuscarNorth.add(jbBuscarConfirma);
-		jpBuscarNorth.setLayout(new GridLayout(1, 2));
-
-		jtEmpresasBuscar = new JTable();
-		jsp = new JScrollPane(jtEmpresasBuscar);
-		jpBuscarCenter.add(jsp);
-		jpBuscarCenter.setLayout(new GridLayout(1, 1));
-
-		jifBuscar.getContentPane().setLayout(new BorderLayout());
-		jifBuscar.getContentPane().add(jpBuscarNorth, BorderLayout.NORTH);
-		jifBuscar.getContentPane().add(jpBuscarCenter, BorderLayout.CENTER);
-		return jifBuscar;
 	}
 
 	public JInternalFrame listar() {
@@ -282,15 +257,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpBotoesCRUD.add(jbRefresh);
 		jbRefresh.addActionListener(this);
 
-		jpListaDeDados = new JPanel();
-		jtEmpresas = new JTable(dadosDaListagem());
-		jtEmpresas.getColumnModel().getColumn(0).setPreferredWidth(50);
-		jtEmpresas.getColumnModel().getColumn(1).setPreferredWidth(150);
-		jtEmpresas.getColumnModel().getColumn(2).setPreferredWidth(150);
-		jtEmpresas.getColumnModel().getColumn(3).setPreferredWidth(50);
-		jtEmpresas.addMouseListener(this);
-		jpListaDeDados.add(new JScrollPane(jtEmpresas));
-		jpListaDeDados.setLayout(new GridLayout(1, 1));
+		carregaDados();
 
 		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
 		jifListar.getContentPane().add(jpBotoesCRUD, BorderLayout.NORTH);
@@ -334,7 +301,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 					alterarEmpresa();
 
 			} else if (e.getSource() == jbBuscar) {
-				buscar();
+				// buscar();
 			} else if (e.getSource() == rbCpf) {
 				tratandoCpfCnpj(14, null);
 			} else if (e.getSource() == rbCnpj) {
@@ -342,7 +309,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			} else if (e.getSource() == jbBuscarConfirma) {
 				buttonBuscarConfirma();
 			} else if (e.getSource() == jbRefresh) {
-				atualizar();
+				carregaDados();
 			} else if (e.getSource() == jbAdicionar) {
 				dadosDaEmpresa(null);
 			} else if (e.getSource() == jcbEstados) {
