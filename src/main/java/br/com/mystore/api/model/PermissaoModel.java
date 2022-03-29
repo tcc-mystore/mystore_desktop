@@ -11,6 +11,6 @@ public class PermissaoModel {
 
 	@Override
 	public String toString() {
-		return this.nome;
+		return this.descricao;
 	}
 }

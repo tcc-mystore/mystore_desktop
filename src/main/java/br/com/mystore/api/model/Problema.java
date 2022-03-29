@@ -11,6 +11,7 @@ public class Problema {
 
 	private Integer status;
 	private OffsetDateTime timestamp;
+	private String title;
 	private String userMessage;
 	private String error;
 

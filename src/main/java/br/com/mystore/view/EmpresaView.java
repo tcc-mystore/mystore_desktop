@@ -30,6 +30,7 @@ import javax.swing.text.MaskFormatter;
 import br.com.mystore.api.controller.CidadeController;
 import br.com.mystore.api.controller.EmpresaController;
 import br.com.mystore.api.controller.EstadoController;
+import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.CidadeModel;
 import br.com.mystore.api.model.EstadoModel;
 import br.com.mystore.api.model.input.CidadeInput;
@@ -67,6 +68,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		this.token = token;
 		this.cidadeController = new CidadeController();
 		this.estadoController = new EstadoController();
+		this.empresaController = new EmpresaController();
 	}
 
 	public void dadosDaEmpresa(String id) throws ParseException {
@@ -267,7 +269,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	}
 
 	private TabelaModeloObjeto dadosDaListagem() {
-		empresaController = new EmpresaController();
 		var colunas = new String[] { "Código", "Nome", "CPF/CNPJ", "Status" };
 		var empresas = empresaController.todasEmpresas(this.token);
 		var dados = new String[empresas.size()][colunas.length];
@@ -325,8 +326,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
 			}
+		} catch (ApiException aex) {
+			aex.printStackTrace();
+			JOptionPane.showMessageDialog(jifListar, aex.getProblema().getUserMessage(), aex.getProblema().getTitle(),
+					JOptionPane.WARNING_MESSAGE);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			JOptionPane.showMessageDialog(jifListar, "Detalhes do erro:" + ex.getMessage(), "Erro",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -381,7 +388,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		empresa.setCpfCnpj(jftfCpfCnpj.getText());
 		empresa.setTelefone(jftfTelefone.getText());
 		empresa.setEndereco(endereco);
-		var empresaController = new EmpresaController();
 		var empresaCadastrada = empresaController.cadastrar(token, empresa);
 		if (empresaCadastrada != null) {
 			jtfId.setText(String.valueOf(empresaCadastrada.getId()));

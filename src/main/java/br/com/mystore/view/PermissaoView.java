@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import br.com.mystore.api.controller.PermissaoController;
+import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.utils.TabelaModeloObjeto;
 
 public class PermissaoView extends JInternalFrame implements ActionListener, MouseListener {
@@ -29,6 +30,7 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 
 	public PermissaoView(String token) {
 		this.token = token;
+		this.permissaoController = new PermissaoController();
 	}
 
 	private void atualizar() {
@@ -80,7 +82,6 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 	}
 
 	private TabelaModeloObjeto dadosDaListagem() {
-		permissaoController = new PermissaoController();
 		var colunas = new String[] { "Código", "Descrição", "Nome Técnico" };
 		var permissoes = permissaoController.todasPermissoes(this.token);
 		var dados = new String[permissoes.size()][colunas.length];
@@ -105,8 +106,14 @@ public class PermissaoView extends JInternalFrame implements ActionListener, Mou
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
 			}
+		} catch (ApiException aex) {
+			aex.printStackTrace();
+			JOptionPane.showMessageDialog(jifListar, aex.getProblema().getUserMessage(), aex.getProblema().getTitle(),
+					JOptionPane.WARNING_MESSAGE);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			JOptionPane.showMessageDialog(jifListar, "Detalhes do erro:" + ex.getMessage(), "Erro",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

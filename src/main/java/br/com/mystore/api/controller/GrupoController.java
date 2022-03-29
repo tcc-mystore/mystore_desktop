@@ -13,8 +13,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.api.exception.ApiException;
 import br.com.mystore.api.model.GrupoModel;
+import br.com.mystore.api.model.PermissaoModel;
 import br.com.mystore.api.model.input.GrupoInput;
 import br.com.mystore.api.model.response.GrupoModelResponse;
+import br.com.mystore.api.model.response.PermissaoModelResponse;
 import br.com.mystore.core.AccessConfig;
 
 public class GrupoController extends AuthorizationController {
@@ -55,7 +57,8 @@ public class GrupoController extends AuthorizationController {
 
 			var httpEntity = new HttpEntity<Object>(headers);
 
-			return restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class).getStatusCode() == HttpStatus.NO_CONTENT;
+			return restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class)
+					.getStatusCode() == HttpStatus.NO_CONTENT;
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -117,6 +120,30 @@ public class GrupoController extends AuthorizationController {
 			var httpEntity = new HttpEntity<Object>(headers);
 
 			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, GrupoModel.class).getBody();
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public List<PermissaoModel> permissoesDoGrupoPorId(String token, String id) {
+
+		try {
+			var builder = UriComponentsBuilder
+					.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id + "/permissoes");
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+			var responsePermissoesModel = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, PermissaoModelResponse.class).getBody();
+			if (responsePermissoesModel.get_embedded() != null)
+				return Arrays.asList(responsePermissoesModel.get_embedded().getPermissoes());
+			else
+				return null;
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
