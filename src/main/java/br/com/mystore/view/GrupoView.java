@@ -8,7 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -22,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -44,8 +46,8 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 	private JComboBox<CidadeModel> jcbCidades;
 	private JComboBox<EstadoModel> jcbEstados;
 	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar, jbApagar,
-			jbPermissoes, jbAlterarPermissoes;
-	private JPanel jpBotoesCRUD, jpListaDeDados, jpFormulario;
+			jbPermissoes, jbAlterarPermissoes, jbAdicionarPermicao, jbRemoverPermicao;
+	private JPanel jpBotoesCRUD, jpListaDeDados, jpFormulario, jpCenter;
 	private JTable jtGrupos;
 	private String token;
 	private CidadeController cidadeController;
@@ -53,6 +55,8 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 	private Window owner;
 	private JList<PermissaoModel> listPermissoes;
 	private JList<PermissaoModel> listPermissoesGrupo;
+	private DefaultListModel<PermissaoModel> modelPemissoesAusentes;
+	private DefaultListModel<PermissaoModel> modelPermissoesExistente;
 	private GrupoController grupoController;
 	private PermissaoController permissaoController;
 
@@ -71,7 +75,7 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 		if (jpFormulario != null)
 			jpFormulario.removeAll();
 		jpFormulario = new JPanel();
-		var jpCenter = new JPanel();
+		jpCenter = new JPanel();
 		jpCenter.removeAll();
 		var jpRodape = new JPanel();
 		jpRodape.removeAll();
@@ -89,7 +93,13 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 		jpFormulario.add(jlNome);
 		jtfNome = new JTextField();
 		jpFormulario.add(jtfNome);
+
+		this.jbCancelar = new JButton("Cancelar");
+		jpRodape.add(jbCancelar);
+		this.jbCancelar.addActionListener(this);
+
 		var titulo = "";
+		var larguraDaTela = 350;
 		var alturaDaTela = 130;
 		var quantidadeDeLinhasDoGrid = 2;
 		if (id == null && object == jbAdicionar) {
@@ -99,37 +109,48 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 			this.jbSalvar.addActionListener(this);
 		} else if (object == jbPermissoes) {
 			titulo = "Permissões do Grupo";
+			larguraDaTela = 700;
 			alturaDaTela = 350;
 			quantidadeDeLinhasDoGrid = 3;
 			jpFormulario.add(new JLabel("Disponíveis"));
 			jpFormulario.add(new JLabel("Utilizadas"));
 
+			listPermissoes = new JList<PermissaoModel>();
+			jpCenter.add(new JScrollPane(listPermissoes));
+			this.modelPemissoesAusentes = new DefaultListModel<PermissaoModel>();
 			var todasPemissoes = permissaoController.todasPermissoes(this.token);
+
+			listPermissoesGrupo = new JList<PermissaoModel>();
+			jpCenter.add(new JScrollPane(listPermissoesGrupo));
+			this.modelPermissoesExistente = new DefaultListModel<PermissaoModel>();
 			var permissoesExistentes = grupoController.permissoesDoGrupoPorId(this.token, id);
-			var modelPemissoesAusentes = new DefaultListModel<PermissaoModel>();
-			var modelPermissoesExistente = new DefaultListModel<PermissaoModel>();
+
 			if (permissoesExistentes != null) {
+				this.modelPermissoesExistente.addAll(permissoesExistentes);
 				todasPemissoes.forEach(permissao -> {
 					if (!permissoesExistentes.contains(permissao))
-						modelPemissoesAusentes.addElement(permissao);
+						this.modelPemissoesAusentes.addElement(permissao);
 				});
-				listPermissoes = new JList<PermissaoModel>(modelPemissoesAusentes);
+			} else
+				this.modelPemissoesAusentes.addAll(todasPemissoes);
 
-				modelPermissoesExistente.addAll(permissoesExistentes);
-				listPermissoesGrupo = new JList<PermissaoModel>(modelPermissoesExistente);
-			} else {
-				modelPemissoesAusentes.addAll(todasPemissoes);
-				listPermissoes = new JList<PermissaoModel>(modelPemissoesAusentes);
-				listPermissoesGrupo = new JList<PermissaoModel>();
-			}
-			jpCenter.add(new JScrollPane(listPermissoes));
-			jpCenter.add(new JScrollPane(listPermissoesGrupo));
+			listPermissoes.setModel(modelPemissoesAusentes);
+			listPermissoesGrupo.setModel(modelPermissoesExistente);
 
 			jpCenter.setLayout(new GridLayout(1, 2));
 
 			var grupo = grupoController.grupoPorId(token, id);
 			jtfId.setText(String.valueOf(grupo.getId()));
 			jtfNome.setText(grupo.getNome());
+
+			this.jbAdicionarPermicao = new JButton("Adicionar");
+			jpRodape.add(jbAdicionarPermicao);
+			this.jbAdicionarPermicao.addActionListener(this);
+
+			this.jbRemoverPermicao = new JButton("Remover");
+			jpRodape.add(jbRemoverPermicao);
+			this.jbRemoverPermicao.addActionListener(this);
+
 			this.jbAlterarPermissoes = new JButton("Alterar");
 			jpRodape.add(jbAlterarPermissoes);
 			this.jbAlterarPermissoes.addActionListener(this);
@@ -144,20 +165,19 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 			this.jbAlterar.addActionListener(this);
 		}
 
-		this.jbCancelar = new JButton("Cancelar");
-		jpRodape.add(jbCancelar);
-		this.jbCancelar.addActionListener(this);
-
 		this.jpFormulario.setLayout(new GridLayout(quantidadeDeLinhasDoGrid, 2));
 
 		this.jdDadosDaGrupo.getContentPane().setLayout(new BorderLayout());
 		this.jdDadosDaGrupo.getContentPane().add(this.jpFormulario, BorderLayout.NORTH);
-		if (jpCenter.getComponents().length > 0)
+		if (jpCenter.getComponents().length > 0) {
+			listPermissoes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listPermissoesGrupo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			this.jdDadosDaGrupo.getContentPane().add(jpCenter, BorderLayout.CENTER);
+		}
 		this.jdDadosDaGrupo.getContentPane().add(jpRodape, BorderLayout.SOUTH);
 
 		this.jdDadosDaGrupo.setTitle(titulo);
-		this.jdDadosDaGrupo.setSize(350, alturaDaTela);
+		this.jdDadosDaGrupo.setSize(larguraDaTela, alturaDaTela);
 		this.jdDadosDaGrupo.setModal(true);
 		this.jdDadosDaGrupo.setLocationRelativeTo(null);
 		this.jdDadosDaGrupo.setVisible(true);
@@ -270,6 +290,34 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 				jcbCidades.setSelectedIndex(-1);
 			} else if (e.getSource() == jbPermissoes) {
 				dadosDaGrupo(jtGrupos.getValueAt(jtGrupos.getSelectedRow(), 0).toString(), e.getSource());
+			} else if (e.getSource() == jbAdicionarPermicao) {
+				var objetoParaAdicionar = listPermissoes.getSelectedValue();
+				if (objetoParaAdicionar != null) {
+					modelPemissoesAusentes.removeElement(objetoParaAdicionar);
+					listPermissoes.setModel(modelPemissoesAusentes);
+					modelPermissoesExistente.addElement(objetoParaAdicionar);
+					listPermissoesGrupo.setModel(modelPermissoesExistente);
+					objetoParaAdicionar = null;
+				} else
+					JOptionPane.showMessageDialog(jifListar, "Selecione uma permissão!", "Permissão não selecionada",
+							JOptionPane.WARNING_MESSAGE);
+			} else if (e.getSource() == jbRemoverPermicao) {
+				var objetoParaRemover = listPermissoesGrupo.getSelectedValue();
+				if (objetoParaRemover != null) {
+					modelPermissoesExistente.removeElement(objetoParaRemover);
+					listPermissoesGrupo.setModel(modelPermissoesExistente);
+					modelPemissoesAusentes.addElement(objetoParaRemover);
+					listPermissoes.setModel(modelPemissoesAusentes);
+					objetoParaRemover = null;
+				} else
+					JOptionPane.showMessageDialog(jifListar, "Selecione uma permissão!", "Permissão não selecionada",
+							JOptionPane.WARNING_MESSAGE);
+			} else if (e.getSource() == jbAlterarPermissoes) {
+				var adicionarPermissoes = new ArrayList<PermissaoModel>();
+				for (int i = 0; i < modelPermissoesExistente.getSize(); i++)
+					adicionarPermissoes.add(modelPermissoesExistente.get(i));
+				this.jdDadosDaGrupo.dispose();
+				grupoController.adicionarPermissoes(token, adicionarPermissoes, jtfId.getText());
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
@@ -289,7 +337,7 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 		return grupoController.apagarGrupoPorId(token, id);
 	}
 
-	private void limparDados() throws ParseException {
+	private void limparDados() {
 		jtfId.setText("");
 		jtfNome.setText("");
 		jtfNome.requestFocus();

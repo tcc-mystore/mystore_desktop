@@ -1,5 +1,6 @@
 package br.com.mystore.api.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,31 @@ public class GrupoController extends AuthorizationController {
 
 	public GrupoController() {
 		this.restTemplate = new RestTemplate();
+	}
+
+	public List<Integer> adicionarPermissoes(String token, List<PermissaoModel> permissaoModels, String id) {
+		var idsAdicionados = new ArrayList<Integer>();
+		try {
+			for (var permissao : permissaoModels) {
+				var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/permissoes/%d",
+						AccessConfig.URL.getValor(), RESOURCE_PATH, id, permissao.getId()));
+				var resourceUri = builder.buildAndExpand().toUri();
+
+				var headers = createHeaders(token);
+
+				var httpEntity = new HttpEntity<Object>(headers);
+
+				var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
+				if (response.getStatusCode() == HttpStatus.NO_CONTENT)
+					idsAdicionados.add(permissao.getId());
+			}
+			return idsAdicionados;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
 	}
 
 	public GrupoModel alterar(String token, GrupoInput grupoInput, String id) {
