@@ -2,7 +2,7 @@ package br.com.mystore.core;
 
 public enum AccessConfig {
 
-	URL("http://localhost:8080", "URL da API"),
+	URL("http://mystore-app.ddns.net:8181", "URL da API"),
 	USER_MANAGER("mystore-manager", "Usuário de Gerenciamento dos Sistemas"),
 	PASSWORD_MANAGER("123321", "Senha do Usuário de Gerenciamento dos Sistemas"),
 	USER("mystore-desktop", "Usuário de Acesso ao Sistema"),
