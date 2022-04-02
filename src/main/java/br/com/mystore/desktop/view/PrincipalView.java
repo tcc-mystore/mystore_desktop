@@ -14,9 +14,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -34,8 +32,6 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JPanel jpRodape;
 	private JTextField jtfUsuario;
 	private JMenuBar jmbBarra;
-	private JMenu jmCadastro, jmConsultas;
-	private JMenuItem jmiCadastroEmpresa, jmiConsultasEmpresa;
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
@@ -120,40 +116,8 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private JMenuBar barraMenu() {
 		jmbBarra = new JMenuBar();
 
-		// jmbBarra.add(menuCadastro());
-
-		// jmbBarra.add(menuConsultas());
-
 		jmbBarra.add(ferramentas());
 		return jmbBarra;
-	}
-
-	@SuppressWarnings("unused")
-	private JMenu menuCadastro() {
-		jmCadastro = new JMenu("Cadastro");
-		jmCadastro.setMnemonic('C');
-		jmbBarra.add(jmCadastro);
-
-		jmiCadastroEmpresa = new JMenuItem("Cadastro de Empresas");
-		jmiCadastroEmpresa.setMnemonic('E');
-		jmiCadastroEmpresa.addActionListener(this);
-		jmCadastro.add(jmiCadastroEmpresa);
-
-		return jmCadastro;
-	}
-
-	@SuppressWarnings("unused")
-	private JMenu menuConsultas() {
-		jmConsultas = new JMenu("Consultas");
-		jmConsultas.setMnemonic('s');
-		jmbBarra.add(jmCadastro);
-
-		jmiConsultasEmpresa = new JMenuItem("Consultas de Empresas");
-		jmiConsultasEmpresa.setMnemonic('E');
-		jmiConsultasEmpresa.addActionListener(this);
-		jmConsultas.add(jmiConsultasEmpresa);
-
-		return jmConsultas;
 	}
 
 	private JPanel rodape(UsuarioAutenticadoModel usuario) {
@@ -201,7 +165,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == jbEstatistica) {
+			if (e.getSource() == jbEstado) {
+				addFrame(new EstadoView(usuario.getAccess_token()).listar());
+			} else if (e.getSource() == jbEstatistica) {
 				addFrame(new EstatisticaView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbGrupo) {
 				addFrame(new GrupoView(usuario.getAccess_token()).listar());
@@ -215,7 +181,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 				new SobreView();
 			} else {
 				JOptionPane.showMessageDialog(null, "Ação não implementada", "Operação impossível",
-						JOptionPane.ERROR_MESSAGE);
+						JOptionPane.WARNING_MESSAGE);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
