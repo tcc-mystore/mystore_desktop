@@ -13,8 +13,11 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 
+import br.com.mystore.desktop.api.controller.UsuarioController;
 import br.com.mystore.desktop.api.exception.ApiException;
 
 public class EstatisticaView extends JInternalFrame implements ActionListener {
@@ -23,15 +26,36 @@ public class EstatisticaView extends JInternalFrame implements ActionListener {
 	private JInternalFrame jifListar;
 	private JButton jbBuscar, jbRefresh, jbAdicionar;
 	private JPanel jpBotoesCRUD, jpListaDeDados;
+	private UsuarioController usuarioController;
 
 	public EstatisticaView(String token) {
+		this.usuarioController = new UsuarioController();
 	}
 
 	private void atualizar() {
 		jpListaDeDados.removeAll();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private CategoryDataset categoryDatasetUsuarios() {
+		var category = new DefaultCategoryDataset();
+		usuarioController.quantidadeDeAcessosPorPeriodo(null)
+				.forEach(usuario -> category.addValue(usuario.getQuantidadeDeAcessos(), usuario.getNome(), ""));
+		return category;
+	}
+
+	private JFreeChart chartBar() {
+
+		return ChartFactory.createBarChart(//
+				"Quantidade de Acessos", // Titulo do grafico
+				"", //
+				"Quantidade de Acessos", // Label Vertical
+				categoryDatasetUsuarios(), // DataSet
+				PlotOrientation.VERTICAL, //
+				true, // Para mostrar ou não a legenda
+				false, // Para mostrar ou não os tooltips
+				false);
+	}
+
 	public JInternalFrame listar() {
 		jifListar = new JInternalFrame();
 		jifListar.setSize(800, 300);
@@ -52,20 +76,11 @@ public class EstatisticaView extends JInternalFrame implements ActionListener {
 		jbRefresh.addActionListener(this);
 
 		jpListaDeDados = new JPanel();
-		DefaultPieDataset pieDataset = new DefaultPieDataset();
 
-		pieDataset.setValue("A", 75);
-		pieDataset.setValue("B", 10);
-		pieDataset.setValue("C", 10);
-		pieDataset.setValue("D", 10);
+		jpListaDeDados.add(new ChartPanel(chartBar()));
 
-		JFreeChart grafico = ChartFactory.createPieChart("Titulo Do Grafico", // Titulo do grafico
-				pieDataset, // DataSet
-				true, // Para mostrar ou não a legenda
-				true, // Para mostrar ou não os tooltips
-				false);
+		//jpListaDeDados.add(new ChartPanel(chartPie()));
 
-		jpListaDeDados.add(new ChartPanel(grafico));
 		jpListaDeDados.setLayout(new GridLayout(1, 1));
 
 		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
