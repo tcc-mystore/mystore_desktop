@@ -21,8 +21,6 @@ public class PermissaoController extends AuthorizationController {
 
 	private RestTemplate restTemplate;
 
-	public static String TOKEN = null;
-
 	public PermissaoController() {
 		this.restTemplate = new RestTemplate();
 	}

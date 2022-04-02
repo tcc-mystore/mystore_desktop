@@ -26,8 +26,6 @@ public class AuthorizationController {
 
 	private RestTemplate restTemplate;
 
-	public static String TOKEN = null;
-
 	public AuthorizationController() {
 		this.restTemplate = new RestTemplate();
 		;

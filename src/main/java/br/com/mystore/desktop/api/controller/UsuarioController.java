@@ -11,8 +11,6 @@ import br.com.mystore.desktop.api.model.dto.UsuarioAcessoPorPeriodoDTO;
 
 public class UsuarioController extends AuthorizationController {
 
-	public static String TOKEN = null;
-
 	public UsuarioController() {
 	}
 
@@ -25,6 +23,11 @@ public class UsuarioController extends AuthorizationController {
 			acessos.add(new UsuarioAcessoPorPeriodoDTO("Anderson", 200));
 			acessos.add(new UsuarioAcessoPorPeriodoDTO("Nilson", 150));
 			acessos.add(new UsuarioAcessoPorPeriodoDTO("George", 50));
+			acessos.add(new UsuarioAcessoPorPeriodoDTO("Jose", 300));
+			acessos.add(new UsuarioAcessoPorPeriodoDTO("Maria", 50));
+			acessos.add(new UsuarioAcessoPorPeriodoDTO("Alberto", 12));
+			acessos.add(new UsuarioAcessoPorPeriodoDTO("Camila", 233));
+			acessos.add(new UsuarioAcessoPorPeriodoDTO("Andrerssa", 800));
 
 			return acessos;
 

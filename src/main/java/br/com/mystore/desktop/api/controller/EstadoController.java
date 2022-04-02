@@ -21,8 +21,6 @@ public class EstadoController extends AuthorizationController {
 
 	private RestTemplate restTemplate;
 
-	public static String TOKEN = null;
-
 	public EstadoController() {
 		this.restTemplate = new RestTemplate();
 	}
