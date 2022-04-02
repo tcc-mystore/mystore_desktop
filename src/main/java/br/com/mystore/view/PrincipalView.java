@@ -39,7 +39,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
-	private JButton jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
+	private JButton jbEstatistica, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
@@ -57,6 +57,13 @@ public class PrincipalView extends JFrame implements ActionListener {
 
 	private JToolBar ferramentas() {
 		jtbFerramentas = new JToolBar("Ferramentas", JToolBar.HORIZONTAL);
+
+		jbEstatistica = new JButton();
+		jbEstatistica.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/estatistica.png")));
+		jbEstatistica.setToolTipText("Estatíticas");
+		jbEstatistica.setFocusable(false);
+		jbEstatistica.addActionListener(this);
+		jtbFerramentas.add(jbEstatistica);
 
 		jbGrupo = new JButton();
 		jbGrupo.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/assets/grupos.png")));
@@ -180,7 +187,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == jbGrupo) {
+			if (e.getSource() == jbEstatistica) {
+				addFrame(new EstatisticaView(usuario.getAccess_token()).listar());
+			}else if (e.getSource() == jbGrupo) {
 				addFrame(new GrupoView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbPermissao) {
 				addFrame(new PermissaoView(usuario.getAccess_token()).listar());
@@ -210,7 +219,8 @@ public class PrincipalView extends JFrame implements ActionListener {
 									+ desktopView.getAllFrames().length + " janela(s) aberta(s)",
 							"Operação impossível", JOptionPane.ERROR_MESSAGE);
 		} else {
-			if (JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fechar" + "\n o sistema?", "Saindo...", JOptionPane.YES_OPTION) == JOptionPane.YES_OPTION)
+			if (JOptionPane.showConfirmDialog(null, "Tem certeza que deseja fechar" + "\n o sistema?", "Saindo...",
+					JOptionPane.YES_OPTION) == JOptionPane.YES_OPTION)
 				System.exit(0);
 		}
 	}

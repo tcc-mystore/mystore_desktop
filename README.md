@@ -56,11 +56,14 @@ $ https://bcrypt-generator.com/
 # Configurando o projeto inicial [https://start.spring.io/](https://start.spring.io/).
 $ spring-boot-starter
 
-#Instala a dependência do java web [https://search.maven.org/artifact/org.springframework.boot/spring-boot-starter-web/2.2.2.RELEASE].
+#Instala a dependência do Java Web [https://search.maven.org/artifact/org.springframework.boot/spring-boot-starter-web/2.2.2.RELEASE].
 $ spring-boot-starter-web
 
 # Instala a dependência de restart da aplicação, recomendado apenas para ambiente de desenvolvimento [https://search.maven.org/artifact/org.springframework.boot/spring-boot-devtools/2.2.2.RELEASE].
 $ spring-boot-devtools
+
+#Instala a dependência do JFreeChart [https://github.com/jfree/jfreechart].
+$ jfreechart
 
 ```
 
