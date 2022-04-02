@@ -34,7 +34,7 @@ import br.com.mystore.desktop.api.controller.EstadoController;
 import br.com.mystore.desktop.api.exception.ApiException;
 import br.com.mystore.desktop.api.model.CidadeModel;
 import br.com.mystore.desktop.api.model.EstadoModel;
-import br.com.mystore.desktop.api.model.input.CidadeInput;
+import br.com.mystore.desktop.api.model.input.CidadeIdInput;
 import br.com.mystore.desktop.api.model.input.EmpresaAtualizaInput;
 import br.com.mystore.desktop.api.model.input.EmpresaInput;
 import br.com.mystore.desktop.api.model.input.EnderecoAtualizaInput;
@@ -391,7 +391,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	}
 
 	private void salvarEmpresa() {
-		var cidade = new CidadeInput();
+		var cidade = new CidadeIdInput();
 		cidade.setId(((CidadeModel) jcbCidades.getSelectedItem()).getId());
 		var endereco = new EnderecoInput();
 		endereco.setLogradouro(jtfLogradouro.getText());
@@ -416,7 +416,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	}
 
 	private void alterarEmpresa() {
-		var cidade = new CidadeInput();
+		var cidade = new CidadeIdInput();
 		cidade.setId(((CidadeModel) jcbCidades.getSelectedItem()).getId());
 		var endereco = new EnderecoAtualizaInput();
 		endereco.setId(Integer.valueOf(jtfEnderecoId.getText()));

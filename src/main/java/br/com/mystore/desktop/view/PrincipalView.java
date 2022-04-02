@@ -165,7 +165,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == jbEstado) {
+			if (e.getSource() == jbCidade) {
+				addFrame(new CidadeView(usuario.getAccess_token()).listar());
+			} else if (e.getSource() == jbEstado) {
 				addFrame(new EstadoView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbEstatistica) {
 				addFrame(new EstatisticaView(usuario.getAccess_token()).listar());

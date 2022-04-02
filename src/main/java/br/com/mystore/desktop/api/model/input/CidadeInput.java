@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class CidadeInput {
 
-	private Integer id;
-
+	private String nome;
+	private EstadoIdInput estado;
 }
