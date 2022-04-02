@@ -39,7 +39,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
-	private JButton jbEstatistica, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
+	private JButton jbEstatistica, jbEstado, jbCidade, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
@@ -57,6 +57,20 @@ public class PrincipalView extends JFrame implements ActionListener {
 
 	private JToolBar ferramentas() {
 		jtbFerramentas = new JToolBar("Ferramentas", JToolBar.HORIZONTAL);
+
+		jbEstado = new JButton();
+		jbEstado.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estado.png")));
+		jbEstado.setToolTipText("Estados");
+		jbEstado.setFocusable(false);
+		jbEstado.addActionListener(this);
+		jtbFerramentas.add(jbEstado);
+
+		jbCidade = new JButton();
+		jbCidade.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/cidade.png")));
+		jbCidade.setToolTipText("Cidades");
+		jbCidade.setFocusable(false);
+		jbCidade.addActionListener(this);
+		jtbFerramentas.add(jbCidade);
 
 		jbEstatistica = new JButton();
 		jbEstatistica.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estatistica.png")));
@@ -189,7 +203,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 		try {
 			if (e.getSource() == jbEstatistica) {
 				addFrame(new EstatisticaView(usuario.getAccess_token()).listar());
-			}else if (e.getSource() == jbGrupo) {
+			} else if (e.getSource() == jbGrupo) {
 				addFrame(new GrupoView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbPermissao) {
 				addFrame(new PermissaoView(usuario.getAccess_token()).listar());

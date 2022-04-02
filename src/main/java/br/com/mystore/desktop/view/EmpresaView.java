@@ -49,7 +49,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private JFormattedTextField jftfCpfCnpj, jftfTelefone, jftfCep;
 	private JComboBox<CidadeModel> jcbCidades;
 	private JComboBox<EstadoModel> jcbEstados;
-	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar;
+	private JButton jbAlterar, jbCancelar, jbBuscarConfirma, jbSalvar, jbBuscar, jbRefresh, jbAdicionar, jbApagar;
 	private JPanel jpBotoesCRUD, jpListaDeDados, jpBuscarCenter, jpCpfCnpj, jpFormulario;
 	private JTable jtEmpresas, jtEmpresasBuscar;
 	private JScrollPane jsp;
@@ -259,6 +259,11 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpBotoesCRUD.add(jbRefresh);
 		jbRefresh.addActionListener(this);
 
+		jbApagar = new JButton("Apagar");
+		jbApagar.setEnabled(false);
+		jpBotoesCRUD.add(jbApagar);
+		jbApagar.addActionListener(this);
+
 		carregaDados();
 
 		jifListar.getContentPane().setLayout(new BorderLayout(5, 5));
@@ -301,8 +306,6 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 				else
 					alterarEmpresa();
 
-			} else if (e.getSource() == jbBuscar) {
-				// buscar();
 			} else if (e.getSource() == rbCpf) {
 				tratandoCpfCnpj(14, null);
 			} else if (e.getSource() == rbCnpj) {
