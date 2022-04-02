@@ -2,9 +2,10 @@ package br.com.mystore.desktop;
 
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import br.com.mystore.view.LoginView;
+import br.com.mystore.desktop.view.LoginView;
+
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class MystoreDesktopApplication {
 
