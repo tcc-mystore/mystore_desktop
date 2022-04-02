@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -24,7 +26,7 @@ import javax.swing.SwingConstants;
 import br.com.mystore.desktop.api.model.UsuarioAutenticadoModel;
 import br.com.mystore.desktop.utils.DataHora;
 
-public class PrincipalView extends JFrame implements ActionListener {
+public class PrincipalView extends JFrame implements ActionListener, WindowListener {
 
 	private static final long serialVersionUID = 1L;
 	private JLabel jlUsuario, jlIdEmpresa, jlData, jlHora, jlSessaoIdEmpresa, jlSessaoData, jlSessaoHora, jlStatus,
@@ -35,7 +37,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
 	private JToolBar jtbFerramentas;
-	private JButton jbEstatistica, jbEstado, jbCidade, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
+	private JButton jbEstatistica, jbEstado, jbCidade, jbUsuario, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
 		this.usuario = usuario;
@@ -45,6 +47,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		this.setJMenuBar(barraMenu());
+		this.addWindowListener(this);
 
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(centro(), BorderLayout.CENTER);
@@ -53,6 +56,7 @@ public class PrincipalView extends JFrame implements ActionListener {
 
 	private JToolBar ferramentas() {
 		jtbFerramentas = new JToolBar("Ferramentas", JToolBar.HORIZONTAL);
+		jtbFerramentas.setAlignmentX(SwingConstants.CENTER);
 
 		jbEstado = new JButton();
 		jbEstado.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estado.png")));
@@ -74,6 +78,13 @@ public class PrincipalView extends JFrame implements ActionListener {
 		jbEstatistica.setFocusable(false);
 		jbEstatistica.addActionListener(this);
 		jtbFerramentas.add(jbEstatistica);
+
+		jbUsuario = new JButton();
+		jbUsuario.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/usuario.png")));
+		jbUsuario.setToolTipText("Usuários");
+		jbUsuario.setFocusable(false);
+		jbUsuario.addActionListener(this);
+		jtbFerramentas.add(jbUsuario);
 
 		jbGrupo = new JButton();
 		jbGrupo.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/grupos.png")));
@@ -165,7 +176,9 @@ public class PrincipalView extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if (e.getSource() == jbCidade) {
+			if (e.getSource() == jbUsuario) {
+				addFrame(new UsuarioView(usuario.getAccess_token()).listar());
+			} else if (e.getSource() == jbCidade) {
 				addFrame(new CidadeView(usuario.getAccess_token()).listar());
 			} else if (e.getSource() == jbEstado) {
 				addFrame(new EstadoView(usuario.getAccess_token()).listar());
@@ -243,5 +256,34 @@ public class PrincipalView extends JFrame implements ActionListener {
 		public Dimension getPreferredSize() {
 			return new Dimension(iiImagem.getIconWidth(), iiImagem.getIconHeight());
 		}
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		fecharAplicacao();
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
 	}
 }
