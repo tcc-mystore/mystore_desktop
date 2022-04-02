@@ -107,7 +107,7 @@ public class GrupoController extends AuthorizationController {
 		}
 	}
 
-	public List<GrupoModel> todasGrupos(String token) {
+	public List<GrupoModel> todosGrupos(String token) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);

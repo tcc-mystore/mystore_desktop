@@ -176,7 +176,7 @@ public class GrupoView extends JInternalFrame implements ActionListener, MouseLi
 			jpListaDeDados = new JPanel();
 		jpListaDeDados.removeAll();
 		var colunas = new String[] { "Código", "Nome" };
-		var grupos = grupoController.todasGrupos(this.token);
+		var grupos = grupoController.todosGrupos(this.token);
 		var dados = new String[grupos.size()][colunas.length];
 		for (int linha = 0; linha < dados.length; linha++) {
 			dados[linha][0] = String.valueOf(grupos.get(linha).getId());
