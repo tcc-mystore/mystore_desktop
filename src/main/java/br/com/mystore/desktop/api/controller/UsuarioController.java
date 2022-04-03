@@ -13,9 +13,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.mystore.desktop.api.exception.ApiException;
+import br.com.mystore.desktop.api.model.GrupoModel;
 import br.com.mystore.desktop.api.model.UsuarioModel;
 import br.com.mystore.desktop.api.model.dto.UsuarioAcessoPorPeriodoDTO;
 import br.com.mystore.desktop.api.model.input.UsuarioInput;
+import br.com.mystore.desktop.api.model.response.GrupoModelResponse;
 import br.com.mystore.desktop.api.model.response.UsuarioModelResponse;
 import br.com.mystore.desktop.core.AccessConfig;
 
@@ -182,6 +184,70 @@ public class UsuarioController extends AuthorizationController {
 			var httpEntity = new HttpEntity<Object>(headers);
 			var response = restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, String.class);
 			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public List<GrupoModel> gruposDoUsuarioPorId(String token, Integer id) {
+
+		try {
+			var builder = UriComponentsBuilder
+					.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id + "/grupos");
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+			var grupoModelResponse = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, GrupoModelResponse.class).getBody();
+			if (grupoModelResponse.get_embedded() != null)
+				return Arrays.asList(grupoModelResponse.get_embedded().getGrupos());
+			else
+				return null;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public boolean adicionarGrupo(String token, GrupoModel grupoModel, Integer id) {
+		try {
+			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/grupos/%d",
+					AccessConfig.URL.getValor(), RESOURCE_PATH, id, grupoModel.getId()));
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
+			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public boolean removerGrupo(String token, GrupoModel permissaoModel, Integer id) {
+		try {
+			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/grupos/%d",
+					AccessConfig.URL.getValor(), RESOURCE_PATH, id, permissaoModel.getId()));
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var response = restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class);
+			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
 		} catch (RestClientResponseException e) {

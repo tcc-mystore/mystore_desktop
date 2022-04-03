@@ -8,22 +8,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import br.com.mystore.desktop.api.controller.GrupoController;
 import br.com.mystore.desktop.api.controller.UsuarioController;
 import br.com.mystore.desktop.api.exception.ApiException;
+import br.com.mystore.desktop.api.model.GrupoModel;
 import br.com.mystore.desktop.api.model.input.UsuarioInput;
 import br.com.mystore.desktop.utils.TabelaModeloObjeto;
 
@@ -33,7 +39,8 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 	private JInternalFrame jifListar;
 	private JLabel jlId, jlNome, jlEmail, jlStatus, jlGerarNovaSenha;
 	private JTextField jtfId, jtfNome, jtfEmail;
-	private JButton jbAlterar, jbCancelar, jbSalvar, jbRefresh, jbAdicionar, jbGrupos, jbGerarNovaSenha;
+	private JButton jbAlterar, jbCancelar, jbSalvar, jbRefresh, jbAdicionar, jbGrupos, jbGerarNovaSenha,
+			jbAdicionarGrupo, jbRemoverGrupo;
 	private JCheckBox jckStatus;
 	private JPanel jpBotoesCRUD, jpListaDeDados, jpFormulario, jpCenter;
 	private JTable jtUsuarios;
@@ -41,11 +48,19 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 	private JDialog jdDadosDoUsuario;
 	private Window owner;
 	private UsuarioController usuarioController;
+	private GrupoController grupoController;
+	private List<GrupoModel> grupoModelAusentes;
+	private List<GrupoModel> grupoModelExistentes;
+	private JList<GrupoModel> listGrupos;
+	private JList<GrupoModel> listGruposDoUsuario;
+	private DefaultListModel<GrupoModel> modelGruposAusentes;
+	private DefaultListModel<GrupoModel> modelGruposExistentes;
 
 	public UsuarioView(String token) {
 		this.owner = SwingUtilities.getWindowAncestor(this);
 		this.token = token;
 		this.usuarioController = new UsuarioController();
+		this.grupoController = new GrupoController();
 	}
 
 	public void dadosDoUsuario(String id, Object object) {
@@ -107,6 +122,51 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 			jbSalvar = new JButton("Salvar");
 			jpRodape.add(jbSalvar);
 			jbSalvar.addActionListener(this);
+		} else if (object == jbGrupos) {
+			titulo = "Grupos do Usuário";
+			larguraDaTela = 700;
+			alturaDaTela = 350;
+			quantidadeDeLinhasDoGrid = 6;
+			jpFormulario.add(new JLabel("Disponíveis"));
+			jpFormulario.add(new JLabel("Utilizadas"));
+
+			listGrupos = new JList<GrupoModel>();
+			jpCenter.add(new JScrollPane(listGrupos));
+			modelGruposAusentes = new DefaultListModel<GrupoModel>();
+			grupoModelAusentes = grupoController.todosGrupos(token);
+
+			listGruposDoUsuario = new JList<GrupoModel>();
+			jpCenter.add(new JScrollPane(listGruposDoUsuario));
+			modelGruposExistentes = new DefaultListModel<GrupoModel>();
+			grupoModelExistentes = usuarioController.gruposDoUsuarioPorId(token, Integer.parseInt(id));
+
+			if (grupoModelExistentes != null) {
+				modelGruposExistentes.addAll(grupoModelExistentes);
+				grupoModelAusentes.forEach(permissao -> {
+					if (!grupoModelExistentes.contains(permissao))
+						modelGruposAusentes.addElement(permissao);
+				});
+			} else
+				modelGruposAusentes.addAll(grupoModelAusentes);
+
+			listGrupos.setModel(modelGruposAusentes);
+			listGruposDoUsuario.setModel(modelGruposExistentes);
+
+			jpCenter.setLayout(new GridLayout(1, 2));
+
+			var usuario = usuarioController.usuarioPorId(token, Integer.parseInt(id));
+			jtfId.setText(String.valueOf(usuario.getId()));
+			jtfNome.setText(usuario.getNome());
+			jtfEmail.setText(usuario.getEmail());
+
+			jbAdicionarGrupo = new JButton("Adicionar");
+			jpRodape.add(jbAdicionarGrupo);
+			jbAdicionarGrupo.addActionListener(this);
+
+			jbRemoverGrupo = new JButton("Remover");
+			jpRodape.add(jbRemoverGrupo);
+			jbRemoverGrupo.addActionListener(this);
+
 		} else {
 			titulo = "Alterar Usuario";
 			var usuario = usuarioController.usuarioPorId(token, Integer.parseInt(id));
@@ -126,6 +186,11 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 
 		jdDadosDoUsuario.getContentPane().setLayout(new BorderLayout());
 		jdDadosDoUsuario.getContentPane().add(jpFormulario, BorderLayout.NORTH);
+		if (jpCenter.getComponents().length > 0) {
+			listGrupos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listGruposDoUsuario.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			jdDadosDoUsuario.getContentPane().add(jpCenter, BorderLayout.CENTER);
+		}
 		jdDadosDoUsuario.getContentPane().add(jpRodape, BorderLayout.SOUTH);
 
 		jdDadosDoUsuario.setTitle(titulo);
@@ -211,7 +276,7 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 			} else if (e.getSource() == jbAdicionar) {
 				dadosDoUsuario(null, e.getSource());
 			} else if (e.getSource() == jbGrupos) {
-				//
+				dadosDoUsuario(jtUsuarios.getValueAt(jtUsuarios.getSelectedRow(), 0).toString(), e.getSource());
 			} else if (e.getSource() == jbGerarNovaSenha) {
 				var critica = criticas();
 				if (critica != null)
@@ -234,6 +299,40 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 					JOptionPane.showMessageDialog(jdDadosDoUsuario, mensagem, "Alteração Realizada",
 							JOptionPane.INFORMATION_MESSAGE);
 				}
+			} else if (e.getSource() == jbAdicionarGrupo) {
+				var objetoParaAdicionar = listGrupos.getSelectedValue();
+				if (objetoParaAdicionar != null) {
+					var grupoAdicionado = usuarioController.adicionarGrupo(token, objetoParaAdicionar,
+							Integer.parseInt(jtfId.getText()));
+					if (!grupoAdicionado)
+						JOptionPane.showMessageDialog(jdDadosDoUsuario,
+								"Não foi possível adicionar o grupo, tente novamente!", "Atenção",
+								JOptionPane.WARNING_MESSAGE);
+					modelGruposAusentes.removeElement(objetoParaAdicionar);
+					listGrupos.setModel(modelGruposAusentes);
+					modelGruposExistentes.addElement(objetoParaAdicionar);
+					listGruposDoUsuario.setModel(modelGruposExistentes);
+					objetoParaAdicionar = null;
+				} else
+					JOptionPane.showMessageDialog(jdDadosDoUsuario, "Selecione um usuário!", "Grupo não selecionada",
+							JOptionPane.WARNING_MESSAGE);
+			} else if (e.getSource() == jbRemoverGrupo) {
+				var objetoParaRemover = listGruposDoUsuario.getSelectedValue();
+				if (objetoParaRemover != null) {
+					var grupoRemovido = usuarioController.removerGrupo(token, objetoParaRemover,
+							Integer.parseInt(jtfId.getText()));
+					if (!grupoRemovido)
+						JOptionPane.showMessageDialog(jdDadosDoUsuario,
+								"Não foi possível remover o grupo, tente novamente!", "Atenção",
+								JOptionPane.WARNING_MESSAGE);
+					modelGruposExistentes.removeElement(objetoParaRemover);
+					listGruposDoUsuario.setModel(modelGruposExistentes);
+					modelGruposAusentes.addElement(objetoParaRemover);
+					listGrupos.setModel(modelGruposAusentes);
+					objetoParaRemover = null;
+				} else
+					JOptionPane.showMessageDialog(jdDadosDoUsuario, "Selecione um grupo!", "Grupo não selecionada",
+							JOptionPane.WARNING_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
