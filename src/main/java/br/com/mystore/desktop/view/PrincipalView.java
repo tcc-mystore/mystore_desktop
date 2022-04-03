@@ -206,7 +206,6 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 	}
 
 	private void fecharAplicacao() {
-		System.exit(0);
 		if (desktopView.getAllFrames().length > 0) {
 			JOptionPane
 					.showMessageDialog(
