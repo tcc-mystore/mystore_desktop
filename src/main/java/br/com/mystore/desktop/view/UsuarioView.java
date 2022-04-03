@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -30,9 +31,10 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 
 	private static final long serialVersionUID = 1L;
 	private JInternalFrame jifListar;
-	private JLabel jlId, jlNome, jlEmail;
+	private JLabel jlId, jlNome, jlEmail, jlStatus, jlGerarNovaSenha;
 	private JTextField jtfId, jtfNome, jtfEmail;
-	private JButton jbAlterar, jbCancelar, jbSalvar, jbRefresh, jbAdicionar, jbApagar;
+	private JButton jbAlterar, jbCancelar, jbSalvar, jbRefresh, jbAdicionar, jbGrupos, jbGerarNovaSenha;
+	private JCheckBox jckStatus;
 	private JPanel jpBotoesCRUD, jpListaDeDados, jpFormulario, jpCenter;
 	private JTable jtUsuarios;
 	private String token;
@@ -77,14 +79,29 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 		jtfEmail = new JTextField();
 		jpFormulario.add(jtfEmail);
 
+		jlStatus = new JLabel("Ativo: ");
+		jlStatus.setHorizontalAlignment(SwingConstants.RIGHT);
+		jpFormulario.add(jlStatus);
+		jckStatus = new JCheckBox();
+		jckStatus.setEnabled(false);
+		jpFormulario.add(jckStatus);
+
+		jlGerarNovaSenha = new JLabel("Nova Senha: ");
+		jlGerarNovaSenha.setHorizontalAlignment(SwingConstants.RIGHT);
+		jpFormulario.add(jlGerarNovaSenha);
+		jbGerarNovaSenha = new JButton("Gerar");
+		jbGerarNovaSenha.setEnabled(false);
+		jbGerarNovaSenha.addActionListener(this);
+		jpFormulario.add(jbGerarNovaSenha);
+
 		jbCancelar = new JButton("Cancelar");
 		jpRodape.add(jbCancelar);
 		jbCancelar.addActionListener(this);
 
 		var titulo = "";
 		var larguraDaTela = 350;
-		var alturaDaTela = 150;
-		var quantidadeDeLinhasDoGrid = 3;
+		var alturaDaTela = 210;
+		var quantidadeDeLinhasDoGrid = 5;
 		if (id == null && object == jbAdicionar) {
 			titulo = "Cadastrar Usuario";
 			jbSalvar = new JButton("Salvar");
@@ -95,7 +112,11 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 			var usuario = usuarioController.usuarioPorId(token, Integer.parseInt(id));
 			jtfId.setText(String.valueOf(usuario.getId()));
 			jtfNome.setText(usuario.getNome());
-			jtfEmail.setText(usuario.getEmmail());
+			jtfEmail.setText(usuario.getEmail());
+			jckStatus.setEnabled(true);
+			jckStatus.setSelected(usuario.getAtivo() == null ? false : true);
+			jckStatus.addActionListener(this);
+			jbGerarNovaSenha.setEnabled(true);
 			jbAlterar = new JButton("Alterar");
 			jpRodape.add(jbAlterar);
 			jbAlterar.addActionListener(this);
@@ -152,10 +173,10 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 		jpBotoesCRUD.add(jbRefresh);
 		jbRefresh.addActionListener(this);
 
-		jbApagar = new JButton("Apagar");
-		jbApagar.setEnabled(false);
-		jpBotoesCRUD.add(jbApagar);
-		jbApagar.addActionListener(this);
+		jbGrupos = new JButton("Grupos");
+		jbGrupos.setEnabled(false);
+		jpBotoesCRUD.add(jbGrupos);
+		jbGrupos.addActionListener(this);
 
 		carregarDados();
 
@@ -189,13 +210,30 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 				carregarDados();
 			} else if (e.getSource() == jbAdicionar) {
 				dadosDoUsuario(null, e.getSource());
-			} else if (e.getSource() == jbApagar) {
-				if (JOptionPane.showConfirmDialog(jifListar,
-						"Tem certeza que deseja apagar este usuario? certifique-se de que não há usuário vinculado.",
-						"Apagando...", JOptionPane.YES_OPTION) == JOptionPane.YES_OPTION)
-					if (apagarUsuario(jtUsuarios.getValueAt(jtUsuarios.getSelectedRow(), 0).toString()))
-						JOptionPane.showMessageDialog(jifListar, "Usuario apagado com sucesso!", "Alteração Realizada",
-								JOptionPane.INFORMATION_MESSAGE);
+			} else if (e.getSource() == jbGrupos) {
+				//
+			} else if (e.getSource() == jbGerarNovaSenha) {
+				var critica = criticas();
+				if (critica != null)
+					JOptionPane.showMessageDialog(jdDadosDoUsuario, critica, "Atenção", JOptionPane.WARNING_MESSAGE);
+				else {
+					if (usuarioController.solicitarCodigoAcesso(token, jtfEmail.getText()))
+						JOptionPane.showMessageDialog(jdDadosDoUsuario, "Código enviado por email!",
+								"Solicitação Realizada", JOptionPane.INFORMATION_MESSAGE);
+					else
+						JOptionPane.showMessageDialog(jdDadosDoUsuario, "Falha ao enviar código por email!", "Falhou",
+								JOptionPane.WARNING_MESSAGE);
+
+				}
+			} else if (e.getSource() == jckStatus) {
+				var usuarioAtivadoOuDesativado = usuarioController.ativarOuDesativar(token,
+						Integer.parseInt(jtfId.getText()), jckStatus.isSelected());
+				if (usuarioAtivadoOuDesativado) {
+					var mensagem = jckStatus.isSelected() ? "Usuário ativado com sucesso!"
+							: "Usuário desativado com sucesso!";
+					JOptionPane.showMessageDialog(jdDadosDoUsuario, mensagem, "Alteração Realizada",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
@@ -209,10 +247,6 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 			JOptionPane.showMessageDialog(jifListar, "Detalhes do erro:" + ex.getMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	private boolean apagarUsuario(String id) {
-		return usuarioController.apagarUsuarioPorId(token, Integer.parseInt(id));
 	}
 
 	private void salvarUsuario() {
@@ -244,19 +278,26 @@ public class UsuarioView extends JInternalFrame implements ActionListener, Mouse
 	}
 
 	private String criticas() {
-		if (jtfNome.getText().equals(""))
-			return "Campo 'Nome' é obrigatório!";
-		else if (jtfEmail.getText().equals(""))
-			return "Campo 'E-mail' é obrigatório!";
-		else
-			return null;
+		if (jbGerarNovaSenha.isEnabled()) {
+			if (jtfEmail.getText().equals(""))
+				return "Campo 'E-mail' é obrigatório!";
+			else
+				return null;
+		} else {
+			if (jtfNome.getText().equals(""))
+				return "Campo 'Nome' é obrigatório!";
+			else if (jtfEmail.getText().equals(""))
+				return "Campo 'E-mail' é obrigatório!";
+			else
+				return null;
+		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		try {
 			if (e.getSource() == jtUsuarios && jtUsuarios.getSelectedRow() != -1) {
-				jbApagar.setEnabled(true);
+				jbGrupos.setEnabled(true);
 				if (e.getClickCount() == 2)
 					dadosDoUsuario(jtUsuarios.getValueAt(jtUsuarios.getSelectedRow(), 0).toString(), jtUsuarios);
 			}

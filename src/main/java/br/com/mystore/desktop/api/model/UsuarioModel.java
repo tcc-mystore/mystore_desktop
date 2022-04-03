@@ -7,5 +7,6 @@ public class UsuarioModel {
 
 	private Integer id;
 	private String nome;
-	private String emmail;
+	private String email;
+	private Boolean ativo;
 }
