@@ -36,7 +36,7 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 	private JMenuBar jmbBarra;
 	private static DesktopView desktopView;
 	private UsuarioAutenticadoModel usuario;
-	private JToolBar jtbFerramentas;
+	private JToolBar jtbFerramentas, jtbEstatisticas;
 	private JButton jbEstatistica, jbEstado, jbCidade, jbUsuario, jbGrupo, jbPermissao, jbEmpresa, jbSair, jbSobre;
 
 	public PrincipalView(UsuarioAutenticadoModel usuario) {
@@ -50,8 +50,9 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		this.addWindowListener(this);
 
 		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(centro(), BorderLayout.CENTER);
 		this.getContentPane().add(rodape(usuario), BorderLayout.SOUTH);
+		this.getContentPane().add(estatisticas(), BorderLayout.WEST);
+		this.getContentPane().add(centro(), BorderLayout.CENTER);
 	}
 
 	private JToolBar ferramentas() {
@@ -71,13 +72,6 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jbCidade.setFocusable(false);
 		jbCidade.addActionListener(this);
 		jtbFerramentas.add(jbCidade);
-
-		jbEstatistica = new JButton();
-		jbEstatistica.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estatistica.png")));
-		jbEstatistica.setToolTipText("Estatíticas");
-		jbEstatistica.setFocusable(false);
-		jbEstatistica.addActionListener(this);
-		jtbFerramentas.add(jbEstatistica);
 
 		jbUsuario = new JButton();
 		jbUsuario.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/usuario.png")));
@@ -122,6 +116,19 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jtbFerramentas.add(jbSair);
 
 		return jtbFerramentas;
+	}
+
+	private JToolBar estatisticas() {
+		jtbEstatisticas = new JToolBar("Estatísticas", JToolBar.VERTICAL);
+
+		jbEstatistica = new JButton();
+		jbEstatistica.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estatistica.png")));
+		jbEstatistica.setToolTipText("Quantidade de Acessos Por Usuário");
+		jbEstatistica.setFocusable(false);
+		jbEstatistica.addActionListener(this);
+		jtbEstatisticas.add(jbEstatistica);
+
+		return jtbEstatisticas;
 	}
 
 	private JMenuBar barraMenu() {
