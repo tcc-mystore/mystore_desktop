@@ -127,6 +127,7 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jbEstatistica.setFocusable(false);
 		jbEstatistica.addActionListener(this);
 		jtbEstatisticas.add(jbEstatistica);
+		jtbEstatisticas.setVisible(false);
 
 		return jtbEstatisticas;
 	}
@@ -246,7 +247,7 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 
 		public DesktopView(Dimension dimension) {
 			if (dimension != null) {
-				iiImagem = new ImageIcon(getClass().getResource("/br/com/mystore/assets/mystore.jpg"));
+				iiImagem = new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/mystore.jpg"));
 				iiImagem.setImage(iiImagem.getImage().getScaledInstance(dimension.width, dimension.height, 100));
 			} else
 				iiImagem = new ImageIcon();

@@ -94,9 +94,13 @@ public class LoginView extends JFrame implements ActionListener {
 			}
 		} else if (e.getSource() == jbEntrar) {
 			try {
+				var carregandoView = new CarregandoView(null);
+				carregandoView.start();
 				var usuarioAutenticado = authorizationController.tokenUsuario(jtfUsuario.getText(),
 						String.valueOf(jpfSenha.getPassword()));
 				System.out.print(usuarioAutenticado.toString());
+				Thread.sleep(5000);
+				carregandoView.interrupt();
 				new PrincipalView(usuarioAutenticado).setVisible(true);
 				this.dispose();
 			} catch (ApiException ex) {
@@ -105,6 +109,9 @@ public class LoginView extends JFrame implements ActionListener {
 					tipoMensagem = JOptionPane.ERROR_MESSAGE;
 				JOptionPane.showMessageDialog(null, ex.getProblema().getUserMessage(), ex.getProblema().getError(),
 						tipoMensagem);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 	}
@@ -118,7 +125,8 @@ public class LoginView extends JFrame implements ActionListener {
 	private void inicializarValores() {
 		// jtfUsuario.setText("");
 		// jpfSenha.setText("");
-
+		var carregandoView = new CarregandoView(null);
+		carregandoView.start();
 		jtfUsuario.setText("geversonjosedesouza@hotmail.com");
 		jpfSenha.setText("123456");
 
@@ -126,6 +134,12 @@ public class LoginView extends JFrame implements ActionListener {
 		try {
 			var appAutenticado = authorizationController.tokenAplicacao();
 			System.out.print(appAutenticado.toString());
+			// var usuarioAutenticado =
+			// authorizationController.tokenUsuario(jtfUsuario.getText(),
+			// String.valueOf(jpfSenha.getPassword()));
+			// System.out.print(usuarioAutenticado.toString());
+			carregandoView.interrupt();
+			// new PrincipalView(usuarioAutenticado).setVisible(true);
 		} catch (ApiException e) {
 			JOptionPane.showMessageDialog(null, "Falha na inicialização: " + e.getProblema().getUserMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);
