@@ -78,7 +78,7 @@ public class LoginView extends JFrame implements ActionListener {
 		jpLogo = new JPanel();
 		jlLogo = new JLabel();
 		jlLogo.setToolTipText("My Store");
-		iiLogo = new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/logo.png"));
+		iiLogo = new ImageIcon(this.getClass().getResource("/imagens/logo.png"));
 		jlLogo.setIcon(iiLogo);
 		jpLogo.add(jlLogo);
 		return jpLogo;
@@ -99,7 +99,6 @@ public class LoginView extends JFrame implements ActionListener {
 				var usuarioAutenticado = authorizationController.tokenUsuario(jtfUsuario.getText(),
 						String.valueOf(jpfSenha.getPassword()));
 				System.out.print(usuarioAutenticado.toString());
-				Thread.sleep(5000);
 				carregandoView.interrupt();
 				new PrincipalView(usuarioAutenticado).setVisible(true);
 				this.dispose();
@@ -109,9 +108,6 @@ public class LoginView extends JFrame implements ActionListener {
 					tipoMensagem = JOptionPane.ERROR_MESSAGE;
 				JOptionPane.showMessageDialog(null, ex.getProblema().getUserMessage(), ex.getProblema().getError(),
 						tipoMensagem);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			}
 		}
 	}
@@ -123,23 +119,18 @@ public class LoginView extends JFrame implements ActionListener {
 	}
 
 	private void inicializarValores() {
-		// jtfUsuario.setText("");
-		// jpfSenha.setText("");
 		var carregandoView = new CarregandoView(null);
 		carregandoView.start();
 		jtfUsuario.setText("geversonjosedesouza@hotmail.com");
 		jpfSenha.setText("123456");
+		jtfUsuario.setText("");
+		jpfSenha.setText("");
 
 		authorizationController = new AuthorizationController();
 		try {
 			var appAutenticado = authorizationController.tokenAplicacao();
 			System.out.print(appAutenticado.toString());
-			// var usuarioAutenticado =
-			// authorizationController.tokenUsuario(jtfUsuario.getText(),
-			// String.valueOf(jpfSenha.getPassword()));
-			// System.out.print(usuarioAutenticado.toString());
 			carregandoView.interrupt();
-			// new PrincipalView(usuarioAutenticado).setVisible(true);
 		} catch (ApiException e) {
 			JOptionPane.showMessageDialog(null, "Falha na inicialização: " + e.getProblema().getUserMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);

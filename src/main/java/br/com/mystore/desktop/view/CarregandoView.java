@@ -25,7 +25,7 @@ public class CarregandoView extends Thread {
 		jpTopo = new JPanel();
 		jlImagemCarregando = new JLabel();
 		jlImagemCarregando.setToolTipText("My Store");
-		iiCarregando = new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/carregando.gif"));
+		iiCarregando = new ImageIcon(this.getClass().getResource("/imagens/carregando.gif"));
 		jlImagemCarregando.setIcon(iiCarregando);
 		jpTopo.add(jlImagemCarregando);
 

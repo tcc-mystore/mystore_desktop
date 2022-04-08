@@ -60,56 +60,56 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jtbFerramentas.setAlignmentX(SwingConstants.CENTER);
 
 		jbEstado = new JButton();
-		jbEstado.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estado.png")));
+		jbEstado.setIcon(new ImageIcon(this.getClass().getResource("/imagens/estado.png")));
 		jbEstado.setToolTipText("Estados");
 		jbEstado.setFocusable(false);
 		jbEstado.addActionListener(this);
 		jtbFerramentas.add(jbEstado);
 
 		jbCidade = new JButton();
-		jbCidade.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/cidade.png")));
+		jbCidade.setIcon(new ImageIcon(this.getClass().getResource("/imagens/cidade.png")));
 		jbCidade.setToolTipText("Cidades");
 		jbCidade.setFocusable(false);
 		jbCidade.addActionListener(this);
 		jtbFerramentas.add(jbCidade);
 
 		jbUsuario = new JButton();
-		jbUsuario.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/usuario.png")));
+		jbUsuario.setIcon(new ImageIcon(this.getClass().getResource("/imagens/usuario.png")));
 		jbUsuario.setToolTipText("Usuários");
 		jbUsuario.setFocusable(false);
 		jbUsuario.addActionListener(this);
 		jtbFerramentas.add(jbUsuario);
 
 		jbGrupo = new JButton();
-		jbGrupo.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/grupos.png")));
+		jbGrupo.setIcon(new ImageIcon(this.getClass().getResource("/imagens/grupos.png")));
 		jbGrupo.setToolTipText("Grupos de Permissões");
 		jbGrupo.setFocusable(false);
 		jbGrupo.addActionListener(this);
 		jtbFerramentas.add(jbGrupo);
 
 		jbPermissao = new JButton();
-		jbPermissao.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/permissao.png")));
+		jbPermissao.setIcon(new ImageIcon(this.getClass().getResource("/imagens/permissao.png")));
 		jbPermissao.setToolTipText("Permissões do Sistema");
 		jbPermissao.setFocusable(false);
 		jbPermissao.addActionListener(this);
 		jtbFerramentas.add(jbPermissao);
 
 		jbEmpresa = new JButton();
-		jbEmpresa.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/empresa.png")));
+		jbEmpresa.setIcon(new ImageIcon(this.getClass().getResource("/imagens/empresa.png")));
 		jbEmpresa.setToolTipText("Cadastro de Epresas");
 		jbEmpresa.setFocusable(false);
 		jbEmpresa.addActionListener(this);
 		jtbFerramentas.add(jbEmpresa);
 
 		jbSobre = new JButton();
-		jbSobre.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/sobre.png")));
+		jbSobre.setIcon(new ImageIcon(this.getClass().getResource("/imagens/sobre.png")));
 		jbSobre.setToolTipText("Sobre");
 		jbSobre.setFocusable(false);
 		jbSobre.addActionListener(this);
 		jtbFerramentas.add(jbSobre);
 
 		jbSair = new JButton();
-		jbSair.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/sair.png")));
+		jbSair.setIcon(new ImageIcon(this.getClass().getResource("/imagens/sair.png")));
 		jbSair.setToolTipText("Sair");
 		jbSair.setFocusable(false);
 		jbSair.addActionListener(this);
@@ -122,7 +122,7 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jtbEstatisticas = new JToolBar("Estatísticas", JToolBar.VERTICAL);
 
 		jbEstatistica = new JButton();
-		jbEstatistica.setIcon(new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/estatistica.png")));
+		jbEstatistica.setIcon(new ImageIcon(this.getClass().getResource("/imagens/estatistica.png")));
 		jbEstatistica.setToolTipText("Quantidade de Acessos Por Usuário");
 		jbEstatistica.setFocusable(false);
 		jbEstatistica.addActionListener(this);
@@ -247,7 +247,7 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 
 		public DesktopView(Dimension dimension) {
 			if (dimension != null) {
-				iiImagem = new ImageIcon(getClass().getResource("/br/com/mystore/desktop/assets/mystore.jpg"));
+				iiImagem = new ImageIcon(this.getClass().getResource("/imagens/mystore.jpg"));
 				iiImagem.setImage(iiImagem.getImage().getScaledInstance(dimension.width, dimension.height, 100));
 			} else
 				iiImagem = new ImageIcon();
