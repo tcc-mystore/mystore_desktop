@@ -1,6 +1,7 @@
 package br.com.mystore.desktop.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -23,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
+import br.com.mystore.desktop.api.exception.ApiException;
 import br.com.mystore.desktop.api.model.UsuarioAutenticadoModel;
 import br.com.mystore.desktop.utils.DataHora;
 
@@ -154,7 +156,13 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 		jlIdEmpresa = new JLabel("Cód. Empresa: ");
 		jlIdEmpresa.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpRodape.add(jlIdEmpresa);
-		jlSessaoIdEmpresa = new JLabel(usuario.getEmpresas()[0]);
+
+		if (usuario.getEmpresas().length > 0)
+			jlSessaoIdEmpresa = new JLabel(usuario.getEmpresas()[0]);
+		else {
+			jlSessaoIdEmpresa = new JLabel("SEM EMPRESA VINCULADA!");
+			jlSessaoIdEmpresa.setForeground(Color.RED);
+		}
 		jpRodape.add(jlSessaoIdEmpresa);
 
 		jlStatus = new JLabel("Status: ");
@@ -206,9 +214,13 @@ public class PrincipalView extends JFrame implements ActionListener, WindowListe
 				JOptionPane.showMessageDialog(null, "Ação não implementada", "Operação impossível",
 						JOptionPane.WARNING_MESSAGE);
 			}
+		} catch (ApiException aex) {
+			aex.printStackTrace();
+			JOptionPane.showMessageDialog(this, aex.getProblema().getUserMessage(), aex.getProblema().getTitle(),
+					JOptionPane.WARNING_MESSAGE);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Erro encontrado: " + ex.getMessage(), "Operação falhou",
+			JOptionPane.showMessageDialog(this, "Detalhes do erro:" + ex.getMessage(), "Erro",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
