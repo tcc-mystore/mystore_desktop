@@ -117,6 +117,8 @@ public class LoginView extends JFrame implements ActionListener {
 	private void inicializarValores() {
 		jtfUsuario.setText("");
 		jpfSenha.setText("");
+		jtfUsuario.setText("paulistensetecnologia@gmail.com");
+		jpfSenha.setText("123456");
 
 		authorizationController = new AuthorizationController();
 	}

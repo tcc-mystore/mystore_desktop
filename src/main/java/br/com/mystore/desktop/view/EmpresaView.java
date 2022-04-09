@@ -473,8 +473,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			if (e.getSource() == jtEmpresas && jtEmpresas.getSelectedRow() != -1 && e.getClickCount() == 2) {
 				dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString());
 			}
+		}  catch (ApiException aex) {
+			aex.printStackTrace();
+			JOptionPane.showMessageDialog(this, aex.getProblema().getUserMessage(), aex.getProblema().getTitle(),
+					JOptionPane.WARNING_MESSAGE);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Detalhes do erro:" + ex.getMessage(), "Erro",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
