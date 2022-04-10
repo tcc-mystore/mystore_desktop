@@ -46,6 +46,26 @@ public class CidadeController extends AuthorizationController {
 		}
 	}
 
+	public boolean apagarCidadePorId(String token, Integer id) {
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			return restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class)
+					.getStatusCode() == HttpStatus.NO_CONTENT;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+
+	}
+
 	public CidadeModel cadastrar(String token, CidadeInput cidadeInput) {
 
 		try {
@@ -57,6 +77,25 @@ public class CidadeController extends AuthorizationController {
 			var httpEntity = new HttpEntity<Object>(cidadeInput, headers);
 
 			return restTemplate.exchange(resourceUri, HttpMethod.POST, httpEntity, CidadeModel.class).getBody();
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public CidadeModel cidadePorId(String token, Integer id) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, CidadeModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -87,42 +126,4 @@ public class CidadeController extends AuthorizationController {
 		}
 	}
 
-	public CidadeModel cidadePorId(String token, Integer id) {
-
-		try {
-			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, CidadeModel.class).getBody();
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
-	public boolean apagarCidadePorId(String token, Integer id) {
-		try {
-			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			return restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class)
-					.getStatusCode() == HttpStatus.NO_CONTENT;
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-
-	}
 }

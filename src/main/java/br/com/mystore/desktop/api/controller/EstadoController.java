@@ -27,25 +27,6 @@ public class EstadoController extends AuthorizationController {
 		this.restTemplate = new RestTemplate();
 	}
 
-	public EstadoModel cadastrar(String token, EstadoInput estadoInput) {
-
-		try {
-			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(estadoInput, headers);
-
-			return restTemplate.exchange(resourceUri, HttpMethod.POST, httpEntity, EstadoModel.class).getBody();
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
 	public EstadoModel alterar(String token, EstadoInput estadoInput, Integer id) {
 
 		try {
@@ -85,7 +66,7 @@ public class EstadoController extends AuthorizationController {
 
 	}
 
-	public List<EstadoModel> todosEstados(String token) {
+	public EstadoModel cadastrar(String token, EstadoInput estadoInput) {
 
 		try {
 			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
@@ -93,12 +74,9 @@ public class EstadoController extends AuthorizationController {
 
 			var headers = createHeaders(token);
 
-			var httpEntity = new HttpEntity<Object>(headers);
+			var httpEntity = new HttpEntity<Object>(estadoInput, headers);
 
-			var responseCidadeModel = restTemplate
-					.exchange(resourceUri, HttpMethod.GET, httpEntity, EstadoModelResponse.class).getBody();
-
-			return Arrays.asList(responseCidadeModel.get_embedded().getEstados());
+			return restTemplate.exchange(resourceUri, HttpMethod.POST, httpEntity, EstadoModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -125,4 +103,27 @@ public class EstadoController extends AuthorizationController {
 			throw new ApiException(e.getMessage(), e);
 		}
 	}
+
+	public List<EstadoModel> todosEstados(String token) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var responseCidadeModel = restTemplate
+					.exchange(resourceUri, HttpMethod.GET, httpEntity, EstadoModelResponse.class).getBody();
+
+			return Arrays.asList(responseCidadeModel.get_embedded().getEstados());
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
 }

@@ -107,6 +107,25 @@ public class GrupoController extends AuthorizationController {
 		}
 	}
 
+	public GrupoModel grupoPorId(String token, String id) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, GrupoModel.class).getBody();
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
 	public List<GrupoModel> todosGrupos(String token) {
 
 		try {
@@ -121,25 +140,6 @@ public class GrupoController extends AuthorizationController {
 					.exchange(resourceUri, HttpMethod.GET, httpEntity, GrupoModelResponse.class).getBody();
 
 			return Arrays.asList(responseGrupoModel.get_embedded().getGrupos());
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
-	public GrupoModel grupoPorId(String token, String id) {
-
-		try {
-			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, GrupoModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);

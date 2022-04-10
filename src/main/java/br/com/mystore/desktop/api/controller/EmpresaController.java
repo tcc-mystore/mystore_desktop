@@ -48,6 +48,45 @@ public class EmpresaController extends AuthorizationController {
 		}
 	}
 
+	public boolean associarUsuario(String token, UsuarioModel usuarioModel, Integer id) {
+		try {
+			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/responsaveis/%d",
+					AccessConfig.URL.getValor(), RESOURCE_PATH, id, usuarioModel.getId()));
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
+			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public Boolean ativarOuDesativar(String token, Integer id, boolean ativa) {
+		try {
+			var operacao = ativa ? "/ativar" : "/desativar";
+			var builder = UriComponentsBuilder
+					.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id + operacao);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+			var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
+			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
 	public EmpresaModel cadastrar(String token, EmpresaInput empresaInput) {
 
 		try {
@@ -59,6 +98,45 @@ public class EmpresaController extends AuthorizationController {
 			var httpEntity = new HttpEntity<Object>(empresaInput, headers);
 
 			return restTemplate.exchange(resourceUri, HttpMethod.POST, httpEntity, EmpresaModel.class).getBody();
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public boolean desassociarUsuario(String token, UsuarioModel usuarioModel, Integer id) {
+		try {
+			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/responsaveis/%d",
+					AccessConfig.URL.getValor(), RESOURCE_PATH, id, usuarioModel.getId()));
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			var response = restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class);
+			return response.getStatusCode() == HttpStatus.NO_CONTENT;
+
+		} catch (ResourceAccessException e) {
+			throw new ApiException(500, null);
+		} catch (RestClientResponseException e) {
+			throw new ApiException(e.getMessage(), e);
+		}
+	}
+
+	public EmpresaModel empresaPorId(String token, String id) {
+
+		try {
+			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
+			var resourceUri = builder.buildAndExpand().toUri();
+
+			var headers = createHeaders(token);
+
+			var httpEntity = new HttpEntity<Object>(headers);
+
+			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModel.class).getBody();
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
@@ -89,44 +167,6 @@ public class EmpresaController extends AuthorizationController {
 		}
 	}
 
-	public EmpresaModel empresaPorId(String token, String id) {
-
-		try {
-			var builder = UriComponentsBuilder.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			return restTemplate.exchange(resourceUri, HttpMethod.GET, httpEntity, EmpresaModel.class).getBody();
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
-	public Boolean ativarOuDesativar(String token, Integer id, boolean ativa) {
-		try {
-			var operacao = ativa ? "/ativar" : "/desativar";
-			var builder = UriComponentsBuilder
-					.fromUriString(AccessConfig.URL.getValor() + RESOURCE_PATH + "/" + id + operacao);
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-			var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
-			return response.getStatusCode() == HttpStatus.NO_CONTENT;
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
 	public List<UsuarioModel> usuariosResponsaveisPorId(String token, Integer id) {
 
 		try {
@@ -143,46 +183,6 @@ public class EmpresaController extends AuthorizationController {
 				return Arrays.asList(grupoModelResponse.get_embedded().getUsuarios());
 			else
 				return null;
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
-	public boolean associarUsuario(String token, UsuarioModel usuarioModel, Integer id) {
-		try {
-			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/responsaveis/%d",
-					AccessConfig.URL.getValor(), RESOURCE_PATH, id, usuarioModel.getId()));
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			var response = restTemplate.exchange(resourceUri, HttpMethod.PUT, httpEntity, String.class);
-			return response.getStatusCode() == HttpStatus.NO_CONTENT;
-
-		} catch (ResourceAccessException e) {
-			throw new ApiException(500, null);
-		} catch (RestClientResponseException e) {
-			throw new ApiException(e.getMessage(), e);
-		}
-	}
-
-	public boolean desassociarUsuario(String token, UsuarioModel usuarioModel, Integer id) {
-		try {
-			var builder = UriComponentsBuilder.fromUriString(String.format("%s%s/%s/responsaveis/%d",
-					AccessConfig.URL.getValor(), RESOURCE_PATH, id, usuarioModel.getId()));
-			var resourceUri = builder.buildAndExpand().toUri();
-
-			var headers = createHeaders(token);
-
-			var httpEntity = new HttpEntity<Object>(headers);
-
-			var response = restTemplate.exchange(resourceUri, HttpMethod.DELETE, httpEntity, String.class);
-			return response.getStatusCode() == HttpStatus.NO_CONTENT;
 
 		} catch (ResourceAccessException e) {
 			throw new ApiException(500, null);
