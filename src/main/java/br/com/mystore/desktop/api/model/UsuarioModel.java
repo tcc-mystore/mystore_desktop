@@ -9,4 +9,10 @@ public class UsuarioModel {
 	private String nome;
 	private String email;
 	private Boolean ativo;
+
+	@Override
+	public String toString() {
+		return this.nome;
+	}
+
 }

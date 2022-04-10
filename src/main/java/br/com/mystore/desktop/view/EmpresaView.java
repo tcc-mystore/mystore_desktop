@@ -9,8 +9,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.ParseException;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -18,12 +20,14 @@ import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.MaskFormatter;
@@ -31,9 +35,11 @@ import javax.swing.text.MaskFormatter;
 import br.com.mystore.desktop.api.controller.CidadeController;
 import br.com.mystore.desktop.api.controller.EmpresaController;
 import br.com.mystore.desktop.api.controller.EstadoController;
+import br.com.mystore.desktop.api.controller.UsuarioController;
 import br.com.mystore.desktop.api.exception.ApiException;
 import br.com.mystore.desktop.api.model.CidadeModel;
 import br.com.mystore.desktop.api.model.EstadoModel;
+import br.com.mystore.desktop.api.model.UsuarioModel;
 import br.com.mystore.desktop.api.model.input.CidadeIdInput;
 import br.com.mystore.desktop.api.model.input.EmpresaAtualizaInput;
 import br.com.mystore.desktop.api.model.input.EmpresaInput;
@@ -51,8 +57,9 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private JFormattedTextField jftfCpfCnpj, jftfTelefone, jftfCep;
 	private JComboBox<CidadeModel> jcbCidades;
 	private JComboBox<EstadoModel> jcbEstados;
-	private JButton jbAlterar, jbCancelar, jbSalvar, jbBuscar, jbRefresh, jbAdicionar, jbApagar;
-	private JPanel jpBotoesCRUD, jpListaDeDados, jpCpfCnpj, jpFormulario;
+	private JButton jbAlterar, jbCancelar, jbSalvar, jbBuscar, jbRefresh, jbAdicionar, jbApagar, jbUsuarios,
+			jbAdicionarUsuario, jbRemoverUsuario;
+	private JPanel jpBotoesCRUD, jpListaDeDados, jpCpfCnpj, jpFormulario, jpCenter, jpRodape;
 	private JCheckBox jckStatus;
 	private JTable jtEmpresas;
 	private ButtonGroup buttonGroup;
@@ -64,6 +71,14 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	private EmpresaController empresaController;
 	private JDialog jdDadosDaEmpresa;
 	private Window owner;
+	// Usuários Responsáveis
+	private UsuarioController usuarioController;
+	private List<UsuarioModel> usuariosModelNaoVinculados;
+	private List<UsuarioModel> usuariosModelVinculados;
+	private JList<UsuarioModel> listUsuariosModelNaoVinculados;
+	private JList<UsuarioModel> listUsuariosModelVinculados;
+	private DefaultListModel<UsuarioModel> modelUsuariosModelNaoVinculados;
+	private DefaultListModel<UsuarioModel> modelUsuariosModelVinculados;
 
 	public EmpresaView(String token) {
 		this.owner = SwingUtilities.getWindowAncestor(this);
@@ -71,13 +86,19 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		this.cidadeController = new CidadeController();
 		this.estadoController = new EstadoController();
 		this.empresaController = new EmpresaController();
+		this.usuarioController = new UsuarioController();
 	}
 
-	public void dadosDaEmpresa(String id) throws ParseException {
+	public void dadosDaEmpresa(String id, Object object) throws ParseException {
 
 		jdDadosDaEmpresa = new JDialog((Frame) owner);
 
+		if (jpFormulario != null)
+			jpFormulario.removeAll();
 		jpFormulario = new JPanel();
+		jpCenter = new JPanel();
+		jpCenter.removeAll();
+
 		// 1
 		jlId = new JLabel("Código: ");
 		jlId.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -169,7 +190,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jpFormulario.add(jlEstado);
 		jcbEstados = new JComboBox<EstadoModel>();
 		jcbEstados.addActionListener(this);
-		estadoController.todosEstados(token).forEach(estado -> jcbEstados.addItem(estado));
+		
 		jpFormulario.add(jcbEstados);
 
 		// 12
@@ -177,17 +198,32 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jlCidade.setHorizontalAlignment(SwingConstants.RIGHT);
 		jpFormulario.add(jlCidade);
 		jcbCidades = new JComboBox<CidadeModel>();
-		cidadeController.todasCidades(token).forEach(cidade -> jcbCidades.addItem(cidade));
+		
 		jpFormulario.add(jcbCidades);
+
+		
+		estadoController.todosEstados(token).forEach(estado -> jcbEstados.addItem(estado));
+		cidadeController.todasCidades(token).forEach(cidade -> jcbCidades.addItem(cidade));
+		
+		if (jpRodape != null)
+			jpRodape.removeAll();
+		jpRodape = new JPanel();
+
+		jbCancelar = new JButton("Cancelar");
+		jpRodape.add(jbCancelar);
+		jbCancelar.addActionListener(this);
+
 		var titulo = "";
-		if (id == null) {
+		var larguraDaTela = 300;
+		var alturaDaTela = 330;
+		var quantidadeDeLinhasDoGrid = 13;
+		if (id == null && object == jbAdicionar) {
 			titulo = "Cadastrar Empresa";
 			jckStatus.setSelected(true);
 			jbSalvar = new JButton("Salvar");
-			jpFormulario.add(jbSalvar);
+			jpRodape.add(jbSalvar);
 			jbSalvar.addActionListener(this);
 		} else {
-			titulo = "Alterar Empresa";
 			var empresa = empresaController.empresaPorId(token, id);
 			jtfId.setText(String.valueOf(empresa.getId()));
 			jtfNome.setText(empresa.getNome());
@@ -206,22 +242,74 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			jftfCep.setValue(empresa.getEndereco().getCep());
 			jcbEstados.getModel().setSelectedItem(empresa.getEndereco().getCidade().getEstado());
 			jcbCidades.getModel().setSelectedItem(empresa.getEndereco().getCidade());
-			jbAlterar = new JButton("Alterar");
-			jpFormulario.add(jbAlterar);
-			jbAlterar.addActionListener(this);
+
+			if (object == jbUsuarios) {
+				titulo = "Usuários Responsáveis";
+				larguraDaTela = 600;
+				alturaDaTela = 550;
+				quantidadeDeLinhasDoGrid = 14;
+				jpFormulario.add(new JLabel("Não Vinculados"));
+				jpFormulario.add(new JLabel("Vinculados"));
+
+				listUsuariosModelNaoVinculados = new JList<UsuarioModel>();
+				jpCenter.add(new JScrollPane(listUsuariosModelNaoVinculados));
+				modelUsuariosModelNaoVinculados = new DefaultListModel<UsuarioModel>();
+				usuariosModelNaoVinculados = usuarioController.todosUsuarios(token);
+
+				listUsuariosModelVinculados = new JList<UsuarioModel>();
+				jpCenter.add(new JScrollPane(listUsuariosModelVinculados));
+				modelUsuariosModelVinculados = new DefaultListModel<UsuarioModel>();
+				usuariosModelVinculados = empresaController.usuariosResponsaveisPorId(token, Integer.parseInt(id));
+
+				if (usuariosModelVinculados != null) {
+					modelUsuariosModelVinculados.addAll(usuariosModelVinculados);
+					usuariosModelNaoVinculados.forEach(usuario -> {
+						if (!usuariosModelVinculados.contains(usuario))
+							modelUsuariosModelNaoVinculados.addElement(usuario);
+					});
+				} else
+					modelUsuariosModelNaoVinculados.addAll(usuariosModelNaoVinculados);
+
+				listUsuariosModelNaoVinculados.setModel(modelUsuariosModelNaoVinculados);
+				listUsuariosModelVinculados.setModel(modelUsuariosModelVinculados);
+
+				jpCenter.setLayout(new GridLayout(1, 2));
+
+				jbAdicionarUsuario = new JButton("Adicionar");
+				jpRodape.add(jbAdicionarUsuario);
+				jbAdicionarUsuario.addActionListener(this);
+
+				jbRemoverUsuario = new JButton("Remover");
+				jpRodape.add(jbRemoverUsuario);
+				jbRemoverUsuario.addActionListener(this);
+
+			} else {
+				titulo = "Alterar Empresa";
+
+				jbAlterar = new JButton("Alterar");
+				jpRodape.add(jbAlterar);
+				jbAlterar.addActionListener(this);
+			}
 		}
 
-		jbCancelar = new JButton("Cancelar");
-		jpFormulario.add(jbCancelar);
-		jbCancelar.addActionListener(this);
-
-		jpFormulario.setLayout(new GridLayout(13, 2));
+		jpFormulario.setLayout(new GridLayout(quantidadeDeLinhasDoGrid, 2));
 
 		jdDadosDaEmpresa.getContentPane().setLayout(new BorderLayout());
-		jdDadosDaEmpresa.getContentPane().add(jpFormulario, BorderLayout.CENTER);
+		jdDadosDaEmpresa.getContentPane().add(jpFormulario, BorderLayout.NORTH);
+		if (jpCenter.getComponents().length > 0) {
+			listUsuariosModelNaoVinculados.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listUsuariosModelVinculados.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			jdDadosDaEmpresa.getContentPane().add(jpCenter, BorderLayout.CENTER);
+		}
+		jdDadosDaEmpresa.getContentPane().add(jpRodape, BorderLayout.SOUTH);
+
+//		jpFormulario.setLayout(new GridLayout(13, 2));
+//
+//		jdDadosDaEmpresa.getContentPane().setLayout(new BorderLayout());
+//		jdDadosDaEmpresa.getContentPane().add(jpFormulario, BorderLayout.CENTER);
 
 		jdDadosDaEmpresa.setTitle(titulo);
-		jdDadosDaEmpresa.setSize(300, 330);
+		jdDadosDaEmpresa.setSize(larguraDaTela, alturaDaTela);
 		jdDadosDaEmpresa.setModal(true);
 		jdDadosDaEmpresa.setLocationRelativeTo(null);
 		jdDadosDaEmpresa.setVisible(true);
@@ -268,6 +356,11 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 		jbApagar.setEnabled(false);
 		jpBotoesCRUD.add(jbApagar);
 		jbApagar.addActionListener(this);
+
+		jbUsuarios = new JButton("Usuários");
+		jbUsuarios.setEnabled(false);
+		jpBotoesCRUD.add(jbUsuarios);
+		jbUsuarios.addActionListener(this);
 
 		carregaDados();
 
@@ -318,7 +411,7 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 			} else if (e.getSource() == jbRefresh) {
 				carregaDados();
 			} else if (e.getSource() == jbAdicionar) {
-				dadosDaEmpresa(null);
+				dadosDaEmpresa(null, jbAdicionar);
 			} else if (e.getSource() == jcbEstados) {
 				if (jcbCidades != null)
 					jcbCidades.removeAllItems();
@@ -339,6 +432,42 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 					JOptionPane.showMessageDialog(jdDadosDaEmpresa, mensagem, "Alteração Realizada",
 							JOptionPane.INFORMATION_MESSAGE);
 				}
+			} else if (e.getSource() == jbUsuarios) {
+				dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString(), e.getSource());
+			} else if (e.getSource() == jbAdicionarUsuario) {
+				var objetoParaAdicionar = listUsuariosModelNaoVinculados.getSelectedValue();
+				if (objetoParaAdicionar != null) {
+					var grupoAdicionado = empresaController.associarUsuario(token, objetoParaAdicionar,
+							Integer.parseInt(jtfId.getText()));
+					if (!grupoAdicionado)
+						JOptionPane.showMessageDialog(jdDadosDaEmpresa,
+								"Não foi possível adicionar o usuario, tente novamente!", "Atenção",
+								JOptionPane.WARNING_MESSAGE);
+					modelUsuariosModelNaoVinculados.removeElement(objetoParaAdicionar);
+					listUsuariosModelNaoVinculados.setModel(modelUsuariosModelNaoVinculados);
+					modelUsuariosModelVinculados.addElement(objetoParaAdicionar);
+					listUsuariosModelVinculados.setModel(modelUsuariosModelVinculados);
+					objetoParaAdicionar = null;
+				} else
+					JOptionPane.showMessageDialog(jdDadosDaEmpresa, "Selecione um usuário!", "Usuário não selecionado",
+							JOptionPane.WARNING_MESSAGE);
+			} else if (e.getSource() == jbRemoverUsuario) {
+				var objetoParaRemover = listUsuariosModelVinculados.getSelectedValue();
+				if (objetoParaRemover != null) {
+					var grupoRemovido = empresaController.desassociarUsuario(token, objetoParaRemover,
+							Integer.parseInt(jtfId.getText()));
+					if (!grupoRemovido)
+						JOptionPane.showMessageDialog(jdDadosDaEmpresa,
+								"Não foi possível remover o usuário, tente novamente!", "Atenção",
+								JOptionPane.WARNING_MESSAGE);
+					modelUsuariosModelVinculados.removeElement(objetoParaRemover);
+					listUsuariosModelVinculados.setModel(modelUsuariosModelVinculados);
+					modelUsuariosModelNaoVinculados.addElement(objetoParaRemover);
+					listUsuariosModelNaoVinculados.setModel(modelUsuariosModelNaoVinculados);
+					objetoParaRemover = null;
+				} else
+					JOptionPane.showMessageDialog(jdDadosDaEmpresa, "Selecione um usuário!", "Usuário não selecionado",
+							JOptionPane.WARNING_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(jifListar, "Ação desconecida nada foi implementado!", "Vazio...",
 						JOptionPane.WARNING_MESSAGE);
@@ -470,10 +599,12 @@ public class EmpresaView extends JInternalFrame implements ActionListener, Mouse
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		try {
-			if (e.getSource() == jtEmpresas && jtEmpresas.getSelectedRow() != -1 && e.getClickCount() == 2) {
-				dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString());
+			if (e.getSource() == jtEmpresas && jtEmpresas.getSelectedRow() != -1) {
+				jbUsuarios.setEnabled(true);
+				if (e.getClickCount() == 2)
+					dadosDaEmpresa(jtEmpresas.getValueAt(jtEmpresas.getSelectedRow(), 0).toString(), jtEmpresas);
 			}
-		}  catch (ApiException aex) {
+		} catch (ApiException aex) {
 			aex.printStackTrace();
 			JOptionPane.showMessageDialog(this, aex.getProblema().getUserMessage(), aex.getProblema().getTitle(),
 					JOptionPane.WARNING_MESSAGE);
